@@ -1,4 +1,4 @@
-name: DynamicSeasonsRecoded
+name: DynamicSeasons
 version: '${version}'
 main: de.tomasgng.DynamicSeasons
 api-version: '1.20'
