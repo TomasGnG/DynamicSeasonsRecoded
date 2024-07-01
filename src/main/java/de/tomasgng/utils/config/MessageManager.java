@@ -1,7 +1,7 @@
 package de.tomasgng.utils.config;
 
 import de.tomasgng.DynamicSeasons;
-import de.tomasgng.utils.config.pathproviders.ConfigPathProvider;
+import de.tomasgng.utils.config.pathproviders.MessagePathProvider;
 import de.tomasgng.utils.config.utils.ConfigExclude;
 import de.tomasgng.utils.config.utils.ConfigPair;
 import net.kyori.adventure.text.Component;
@@ -17,14 +17,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
-public class ConfigManager {
+public class MessageManager {
     private final File folder = new File("plugins/DynamicSeasons");
-    private final File configFile = new File("plugins/DynamicSeasons/config.yml");
+    private final File configFile = new File("plugins/DynamicSeasons/messages.yml");
 
     private YamlConfiguration cfg = YamlConfiguration.loadConfiguration(configFile);
     private final MiniMessage mm = MiniMessage.miniMessage();
 
-    public ConfigManager() {
+    public MessageManager() {
         createFiles();
     }
 
@@ -52,7 +52,7 @@ public class ConfigManager {
         List<ConfigPair> commentConfigPairs = new ArrayList<>();
         List<Class> pathProviders = new ArrayList<>();
 
-        pathProviders.add(ConfigPathProvider.class);
+        pathProviders.add(MessagePathProvider.class);
 
         pathProviders.forEach(pathProvider -> {
             List<Field> fieldList = Arrays.stream(pathProvider.getDeclaredFields()).filter(field -> Modifier.isStatic(field.getModifiers())).toList();
@@ -157,12 +157,12 @@ public class ConfigManager {
     }
 
     private void setComments(ConfigPair pair) {
-        if(pair.hasComments())
-            cfg.setComments(pair.getPath(), pair.getComments());
+        cfg.setComments(pair.getPath(), pair.getComments());
     }
 
     public void set(ConfigPair pair, Object newValue) {
         cfg.set(pair.getPath(), newValue);
         save();
     }
+
 }

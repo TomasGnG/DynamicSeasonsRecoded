@@ -1,11 +1,8 @@
 package de.tomasgng.utils.config;
 
-import de.tomasgng.DynamicSeasons;
-import de.tomasgng.utils.config.pathproviders.ConfigPathProvider;
+import de.tomasgng.utils.config.pathproviders.SeasonDataPathProvider;
 import de.tomasgng.utils.config.utils.ConfigExclude;
 import de.tomasgng.utils.config.utils.ConfigPair;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -15,16 +12,14 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 
-public class ConfigManager {
+public class SeasonDataManager {
     private final File folder = new File("plugins/DynamicSeasons");
-    private final File configFile = new File("plugins/DynamicSeasons/config.yml");
+    private final File configFile = new File("plugins/DynamicSeasons/data.yml");
 
     private YamlConfiguration cfg = YamlConfiguration.loadConfiguration(configFile);
-    private final MiniMessage mm = MiniMessage.miniMessage();
 
-    public ConfigManager() {
+    public SeasonDataManager() {
         createFiles();
     }
 
@@ -52,7 +47,7 @@ public class ConfigManager {
         List<ConfigPair> commentConfigPairs = new ArrayList<>();
         List<Class> pathProviders = new ArrayList<>();
 
-        pathProviders.add(ConfigPathProvider.class);
+        pathProviders.add(SeasonDataPathProvider.class);
 
         pathProviders.forEach(pathProvider -> {
             List<Field> fieldList = Arrays.stream(pathProvider.getDeclaredFields()).filter(field -> Modifier.isStatic(field.getModifiers())).toList();
@@ -109,10 +104,6 @@ public class ConfigManager {
         return getStringList(pair);
     }
 
-    public Component getComponentValue(ConfigPair pair) {
-        return getMiniMessageComponent(pair);
-    }
-
     private Object getObject(ConfigPair pair) {
         reload();
         return cfg.get(pair.getPath(), pair.getValue());
@@ -138,17 +129,6 @@ public class ConfigManager {
         return cfg.getStringList(pair.getPath());
     }
 
-    private Component getMiniMessageComponent(ConfigPair pair) {
-        String value = getString(pair);
-
-        try {
-            return mm.deserialize(value);
-        } catch (Exception e) {
-            DynamicSeasons.getInstance().getLogger().log(Level.WARNING, "The message {" + value + "} is not in MiniMessage format! Source (" + pair.getPath() + ")" + System.lineSeparator() + e.getMessage());
-            return mm.deserialize(pair.getStringValue());
-        }
-    }
-
     private void set(ConfigPair pair) {
         cfg.set(pair.getPath(), pair.getValue());
 
@@ -157,8 +137,7 @@ public class ConfigManager {
     }
 
     private void setComments(ConfigPair pair) {
-        if(pair.hasComments())
-            cfg.setComments(pair.getPath(), pair.getComments());
+        cfg.setComments(pair.getPath(), pair.getComments());
     }
 
     public void set(ConfigPair pair, Object newValue) {

@@ -38,6 +38,10 @@ public class ConfigPair {
         return Integer.parseInt(getStringValue());
     }
 
+    public List<String> getStringListValue() {
+        return (List<String>) value;
+    }
+
     public List<String> getComments() {
         return comments;
     }

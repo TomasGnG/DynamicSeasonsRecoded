@@ -1,6 +1,7 @@
-package de.tomasgng.utils.dataproviders;
+package de.tomasgng.utils.config.dataproviders;
 
 import de.tomasgng.DynamicSeasons;
+import de.tomasgng.utils.PluginLogger;
 import de.tomasgng.utils.config.ConfigManager;
 import de.tomasgng.utils.enums.SeasonType;
 
@@ -17,7 +18,8 @@ public class ConfigDataProvider {
     }
 
     public int getSeasonDuration() {
-        return manager.getIntegerValue(SEASON_DURATION);
+        int seasonDuration = manager.getIntegerValue(SEASON_DURATION);
+        return seasonDuration <= 0 ? SEASON_DURATION.getIntegerValue() : seasonDuration;
     }
 
     public List<String> getWorlds() {
@@ -31,10 +33,12 @@ public class ConfigDataProvider {
     public String getDurationPlaceholderFormat() {
         String format = manager.getStringValue(PLACEHOLDERS_DURATION_FORMAT);
 
+        format = format.replaceAll("\\\\", "");
+
         try {
             new SimpleDateFormat(format);
         } catch (IllegalArgumentException exception) {
-            DynamicSeasons.getInstance().getLogger().severe("Invalid date format! Path in config: " + PLACEHOLDERS_DURATION_FORMAT.getPath());
+            PluginLogger.getInstance().error("Invalid date format! Path in config: " + PLACEHOLDERS_DURATION_FORMAT.getPath());
             format = PLACEHOLDERS_DURATION_FORMAT.getStringValue();
         }
 
@@ -46,6 +50,10 @@ public class ConfigDataProvider {
     }
 
     public String getCurrentSeasonReplacementText(SeasonType season) {
+        if(season == null) {
+            throw new NullPointerException("Season type cannot be null!");
+        }
+
         String replacement = "";
 
         switch (season) {
@@ -56,6 +64,26 @@ public class ConfigDataProvider {
         }
 
         return replacement;
+    }
+
+    public boolean isSeasonChangeBroadcastEnabled() {
+        return manager.getBooleanValue(SEASON_CHANGE_BROADCAST_STATUS);
+    }
+
+    public boolean isSeasonChangeTitleEnabled() {
+        return manager.getBooleanValue(SEASON_CHANGE_TITLE_STATUS);
+    }
+
+    public int getSeasonChangeTitleFadeInDuration() {
+        return manager.getIntegerValue(SEASON_CHANGE_TITLE_OPTION_FADEIN);
+    }
+
+    public int getSeasonChangeTitleStayDuration() {
+        return manager.getIntegerValue(SEASON_CHANGE_TITLE_OPTION_STAY);
+    }
+
+    public int getSeasonChangeTitleFadeOutDuration() {
+        return manager.getIntegerValue(SEASON_CHANGE_TITLE_OPTION_FADEOUT);
     }
 
     public String getCommandName() {
@@ -72,5 +100,9 @@ public class ConfigDataProvider {
 
     public List<String> getCommandAliases() {
         return manager.getStringListValue(COMMAND_ALIAS);
+    }
+
+    public boolean isCommandShowWarningsOnReloadEnabled() {
+        return manager.getBooleanValue(COMMAND_SHOW_WARNINGS_ON_RELOAD);
     }
 }

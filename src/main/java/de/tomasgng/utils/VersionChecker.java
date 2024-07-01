@@ -11,26 +11,24 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
 public final class VersionChecker {
 
-    private static VersionChecker INSTANCE = new VersionChecker();
+    private static final VersionChecker INSTANCE = new VersionChecker();
 
-    private Logger logger = DynamicSeasons.getInstance().getLogger();
-    private MiniMessage mm = MiniMessage.miniMessage();
+    private final Logger logger = DynamicSeasons.getInstance().getLogger();
+    private final MiniMessage mm = MiniMessage.miniMessage();
 
-    private String versionUrl = "https://pastebin.com/raw/DZXYPzR7";
-    private String currentVersion = DynamicSeasons.getInstance().getPluginMeta().getVersion();
-
+    private final String versionUrl = "https://pastebin.com/raw/DZXYPzR7";
+    private final String currentVersion = DynamicSeasons.getInstance().getPluginMeta().getVersion();
 
     public static VersionChecker getInstance() {
         return INSTANCE;
     }
 
-    public void check() {
+    public boolean isLatestVersion(boolean silent) {
         String urlVersion = getUrlVersion();
 
         List<Integer> urlVersionSplitted = Arrays.stream(urlVersion.split("\\.")).map(Integer::parseInt).toList();
@@ -45,7 +43,6 @@ public final class VersionChecker {
                 break;
 
             if(currentInteger < urlInteger) {
-                System.out.println(currentInteger + " | " + urlInteger);
                 isUsingLatestVersion = false;
                 break;
             }
@@ -59,23 +56,29 @@ public final class VersionChecker {
                 break;
 
             if(currentInteger < urlInteger) {
-                System.out.println(currentInteger + " | " + urlInteger);
                 isUsingLatestVersion = false;
                 break;
             }
         }
 
         if(!isUsingLatestVersion) {
+            if(silent)
+                return false;
+
             sendConsoleMessage(mm.deserialize("<gradient:#55C156:#FFFF00:#FFA500:#87CEFA>DynamicSeasons</gradient> <dark_gray>| <yellow>Using an outdated version(" + currentVersion + "). Newest version " + urlVersion));
             sendConsoleMessage(mm.deserialize("<gradient:#55C156:#FFFF00:#FFA500:#87CEFA>DynamicSeasons</gradient> <dark_gray>| <yellow>Download: https://www.spigotmc.org/resources/dynamicseasons-%E2%8C%9B-enhance-your-survival-experience-%E2%9C%85.111362/"));
-            return;
+            return false;
         }
+
+        if(silent)
+            return true;
 
         sendConsoleMessage(mm.deserialize("<gradient:#55C156:#FFFF00:#FFA500:#87CEFA>DynamicSeasons</gradient> <dark_gray>| <green>Using the latest version(" + currentVersion + ")."));
         sendConsoleMessage(mm.deserialize("<gradient:#55C156:#FFFF00:#FFA500:#87CEFA>DynamicSeasons</gradient> <dark_gray>| <green>Thank you for using my plugin ;)"));
+        return true;
     }
 
-    private String getUrlVersion() {
+    public String getUrlVersion() {
         String version = currentVersion;
 
         try {
@@ -94,5 +97,4 @@ public final class VersionChecker {
     private void sendConsoleMessage(Component component) {
         Bukkit.getConsoleSender().sendMessage(component);
     }
-
 }
