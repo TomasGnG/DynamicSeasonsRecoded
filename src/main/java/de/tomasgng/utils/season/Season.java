@@ -17,9 +17,13 @@ import org.bukkit.entity.Animals;
 import org.bukkit.entity.Breedable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.BlockGrowEvent;
+import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
+import org.bukkit.event.world.StructureGrowEvent;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -43,6 +47,7 @@ public class Season {
     private CreatureAttributesFeature creatureAttributesFeature;
     private XPBonusFeature xpBonusFeature;
     private AnimalGrowingFeature animalGrowingFeature;
+    private PreventCropGrowingFeature preventCropGrowingFeature;
 
     public Season(SeasonType seasonType) {
         this.seasonType = seasonType;
@@ -78,6 +83,7 @@ public class Season {
         creatureAttributesFeature = seasonConfigDataProvider.getCreatureAttributesFeature();
         xpBonusFeature = seasonConfigDataProvider.getXPBonusFeature();
         animalGrowingFeature = seasonConfigDataProvider.getAnimalGrowingFeature();
+        preventCropGrowingFeature = seasonConfigDataProvider.getPreventCropGrowingFeature();
     }
 
     public void handleWeatherChangeEvent(WeatherChangeEvent e) {
@@ -205,6 +211,31 @@ public class Season {
         int newXP = BigDecimal.valueOf(e.getExperienceOrb().getExperience() * bonus).setScale(0, RoundingMode.HALF_UP).intValue();
 
         e.getExperienceOrb().setExperience(newXP);
+    }
+
+    public void handlePreventCropGrowing(Event event, World world) {
+        if(isNotWhitelistedWorld(world))
+            return;
+
+        if(!preventCropGrowingFeature.isEnabled())
+            return;
+
+        switch (event) {
+            case BlockSpreadEvent blockSpreadEvent:
+                if(preventCropGrowingFeature.isPrevented(blockSpreadEvent.getNewState().getType()))
+                    blockSpreadEvent.setCancelled(true);
+                return;
+            case BlockGrowEvent blockGrowEvent:
+                if(preventCropGrowingFeature.isPrevented(blockGrowEvent.getNewState().getType()))
+                    blockGrowEvent.setCancelled(true);
+                return;
+            case StructureGrowEvent structureGrowEvent:
+                if(preventCropGrowingFeature.isPrevented(structureGrowEvent.getSpecies()))
+                    structureGrowEvent.setCancelled(true);
+                return;
+            default:
+                return;
+        }
     }
 
     private boolean isNotWhitelistedWorld(World world) {

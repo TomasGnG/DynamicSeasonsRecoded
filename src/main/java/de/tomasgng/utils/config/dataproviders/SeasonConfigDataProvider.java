@@ -8,13 +8,12 @@ import de.tomasgng.utils.features.*;
 import de.tomasgng.utils.features.utils.AnimalGrowingEntry;
 import de.tomasgng.utils.features.utils.AnimalSpawningEntry;
 import de.tomasgng.utils.features.utils.CreatureAttributesEntry;
+import org.bukkit.Material;
+import org.bukkit.TreeType;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static de.tomasgng.utils.config.pathproviders.SeasonConfigPathProvider.*;
 
@@ -154,6 +153,26 @@ public class SeasonConfigDataProvider {
         });
 
         return new AnimalGrowingFeature(isEnabled, parsedEntries);
+    }
+
+    public PreventCropGrowingFeature getPreventCropGrowingFeature() {
+        boolean isEnabled = configManager.getBooleanValue(PREVENT_CROP_GROWING_ENABLED);
+        List<String> rawCrops = configManager.getStringListValue(PREVENT_CROP_GROWING_ENTRIES);
+        List<String> parsedCrops = new ArrayList<>();
+
+        for (String rawCrop : rawCrops) {
+            String path = PREVENT_CROP_GROWING_ENTRIES.getPath() + "." + rawCrop;
+
+            boolean isMaterial = Arrays.stream(Material.values()).anyMatch(x -> x.name().equalsIgnoreCase(rawCrop));
+            boolean isTreeType = Arrays.stream(TreeType.values()).anyMatch(x -> x.name().equalsIgnoreCase(rawCrop));
+
+            if(isMaterial || isTreeType)
+                parsedCrops.add(rawCrop.toUpperCase());
+            else
+                logger.warn(rawCrop + " is not a valid crop. Path in config: " + path);
+        }
+
+        return new PreventCropGrowingFeature(isEnabled, parsedCrops);
     }
 
     private SeasonConfigManager getConfigManager() {

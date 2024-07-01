@@ -3,6 +3,8 @@ package de.tomasgng.utils.config.pathproviders;
 import de.tomasgng.utils.config.utils.ConfigExclude;
 import de.tomasgng.utils.config.utils.ConfigPair;
 
+import java.util.List;
+
 public final class SeasonConfigPathProvider {
     public static ConfigPair WEATHER_ENABLED = new ConfigPair("weather.enabled", true);
     public static ConfigPair WEATHER_TYPE_CLEAR_ENABLED = new ConfigPair("weather.weatherType.clear", true);
@@ -38,4 +40,11 @@ public final class SeasonConfigPathProvider {
     public static ConfigPair ANIMAL_GROWING_ENTRIES_EXAMPLE2 = new ConfigPair("animalGrowing.entries.sheep", 120);
     @ConfigExclude(excludeComments = false)
     public static ConfigPair COMMENT_ANIMAL_GROWING_ENTRIES_BASE = new ConfigPair("animalGrowing.entries", null, "Growing time of babies in seconds", "Default growing time is 24 minutes.");
+
+    public static ConfigPair PREVENT_CROP_GROWING_ENABLED = new ConfigPair("preventCropGrowing.enabled", true);
+    public static ConfigPair PREVENT_CROP_GROWING_ENTRIES = new ConfigPair("preventCropGrowing.entries", List.of("wheat", "birch"));
+    @ConfigExclude(excludeComments = false)
+    public static ConfigPair COMMENT_PREVENT_CROP_GROWING = new ConfigPair("preventCropGrowing", null,
+            "Every crop that is in this list will not grow.",
+            "To prevent trees, you must choose the correct name from this list: https://jd.papermc.io/paper/1.20.6/org/bukkit/TreeType.html#enum-constant-summary");
 }

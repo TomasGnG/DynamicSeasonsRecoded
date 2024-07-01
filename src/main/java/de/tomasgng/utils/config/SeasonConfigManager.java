@@ -143,6 +143,10 @@ public class SeasonConfigManager {
         return section.getValues(false);
     }
 
+    public List<String> getStringListValue(ConfigPair pair) {
+        return getStringList(pair);
+    }
+
     private Object getObject(ConfigPair pair) {
         reload();
         return cfg.get(pair.getPath(), pair.getValue());
@@ -161,6 +165,11 @@ public class SeasonConfigManager {
     private int getInteger(ConfigPair pair) {
         reload();
         return cfg.getInt(pair.getPath(), pair.getIntegerValue());
+    }
+
+    private List<String> getStringList(ConfigPair pair) {
+        reload();
+        return cfg.getStringList(pair.getPath());
     }
 
     private void set(ConfigPair pair) {

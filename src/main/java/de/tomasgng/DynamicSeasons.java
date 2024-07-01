@@ -1,10 +1,7 @@
 package de.tomasgng;
 
 import de.tomasgng.commands.DynamicSeasonsCommand;
-import de.tomasgng.listeners.CreatureSpawnListener;
-import de.tomasgng.listeners.PlayerPickupExperienceListener;
-import de.tomasgng.listeners.ThunderChangeListener;
-import de.tomasgng.listeners.WeatherChangeListener;
+import de.tomasgng.listeners.*;
 import de.tomasgng.placeholders.PlaceholderManager;
 import de.tomasgng.utils.VersionChecker;
 import de.tomasgng.utils.config.ConfigManager;
@@ -77,6 +74,9 @@ public final class DynamicSeasons extends JavaPlugin {
         manager.registerEvents(new ThunderChangeListener(), this);
         manager.registerEvents(new CreatureSpawnListener(), this);
         manager.registerEvents(new PlayerPickupExperienceListener(), this);
+        manager.registerEvents(new BlockGrowListener(), this);
+        manager.registerEvents(new BlockSpreadListener(), this);
+        manager.registerEvents(new StructureGrowListener(), this);
     }
 
     public static DynamicSeasons getInstance() {
