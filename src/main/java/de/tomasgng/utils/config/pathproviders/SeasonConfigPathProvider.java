@@ -47,4 +47,15 @@ public final class SeasonConfigPathProvider {
     public static ConfigPair COMMENT_PREVENT_CROP_GROWING = new ConfigPair("preventCropGrowing", null,
             "Every crop that is in this list will not grow.",
             "To prevent trees, you must choose the correct name from this list: https://jd.papermc.io/paper/1.20.6/org/bukkit/TreeType.html#enum-constant-summary");
+
+    public static ConfigPair POTION_EFFECTS_ENABLED = new ConfigPair("potionEffects.enabled", true);
+    @ConfigExclude
+    public static ConfigPair POTION_EFFECTS_ENTRIES_BASE = new ConfigPair("potionEffects.entries", null);
+    public static ConfigPair POTION_EFFECTS_ENTRIES_EXAMPLE1 = new ConfigPair("potionEffects.entries.regeneration", 1);
+    public static ConfigPair POTION_EFFECTS_ENTRIES_EXAMPLE2 = new ConfigPair("potionEffects.entries.speed", 1);
+    @ConfigExclude(excludeComments = false)
+    public static ConfigPair COMMENT_POTION_EFFECTS = new ConfigPair("potionEffects", null,
+            "List of all potion effects: https://jd.papermc.io/paper/1.20.6/org/bukkit/potion/PotionEffectType.html#field-summary",
+            "Entry format:",
+            "potion_effect: potion_amplifier");
 }

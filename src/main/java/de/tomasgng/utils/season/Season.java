@@ -9,14 +9,12 @@ import de.tomasgng.utils.features.*;
 import de.tomasgng.utils.features.utils.AnimalGrowingEntry;
 import de.tomasgng.utils.features.utils.AnimalSpawningEntry;
 import de.tomasgng.utils.features.utils.CreatureAttributesEntry;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.Animals;
-import org.bukkit.entity.Breedable;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
@@ -24,6 +22,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.world.StructureGrowEvent;
+import org.bukkit.potion.PotionEffect;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -48,6 +47,9 @@ public class Season {
     private XPBonusFeature xpBonusFeature;
     private AnimalGrowingFeature animalGrowingFeature;
     private PreventCropGrowingFeature preventCropGrowingFeature;
+    private PotionEffectsFeature potionEffectsFeature;
+
+    private ScheduledTask potionEffectsTimer;
 
     public Season(SeasonType seasonType) {
         this.seasonType = seasonType;
@@ -63,6 +65,8 @@ public class Season {
             worlds.forEach(x -> Bukkit.getScheduler().runTask(DynamicSeasons.getInstance(), () ->
                     x.setGameRule(GameRule.RANDOM_TICK_SPEED, randomTickSpeedFeature.randomTickSpeed())
             ));
+
+        handlePotionEffects();
     }
 
     private void initWorlds() {
@@ -86,6 +90,7 @@ public class Season {
         xpBonusFeature = seasonConfigDataProvider.getXPBonusFeature();
         animalGrowingFeature = seasonConfigDataProvider.getAnimalGrowingFeature();
         preventCropGrowingFeature = seasonConfigDataProvider.getPreventCropGrowingFeature();
+        potionEffectsFeature = seasonConfigDataProvider.getPotionEffectsFeature();
     }
 
     public void handleWeatherChangeEvent(WeatherChangeEvent e) {
@@ -238,6 +243,34 @@ public class Season {
             default:
                 return;
         }
+    }
+
+    public void handlePotionEffects() {
+        if(potionEffectsTimer != null)
+            potionEffectsTimer.cancel();
+
+        potionEffectsTimer = Bukkit.getAsyncScheduler().runAtFixedRate(DynamicSeasons.getInstance(), scheduledTask -> {
+            if(scheduledTask.isCancelled())
+                return;
+
+            if(!potionEffectsFeature.isEnabled())
+                return;
+
+            for (World world : worlds) {
+                world.getPlayers().forEach(this::givePlayerPotionEffects);
+            }
+        }, 3, 5, TimeUnit.SECONDS);
+    }
+
+    private void givePlayerPotionEffects(Player player) {
+        Bukkit.getScheduler().runTask(DynamicSeasons.getInstance(), () -> {
+            for (PotionEffect effect : potionEffectsFeature.effects()) {
+                if(!player.hasPotionEffect(effect.getType()))
+                    player.addPotionEffect(effect);
+                else if(player.getPotionEffect(effect.getType()).getAmplifier() <= effect.getAmplifier())
+                    player.addPotionEffect(effect);
+            }
+        });
     }
 
     private boolean isNotWhitelistedWorld(World world) {

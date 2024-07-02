@@ -9,9 +9,13 @@ import de.tomasgng.utils.features.utils.AnimalGrowingEntry;
 import de.tomasgng.utils.features.utils.AnimalSpawningEntry;
 import de.tomasgng.utils.features.utils.CreatureAttributesEntry;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.TreeType;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
 
@@ -173,6 +177,33 @@ public class SeasonConfigDataProvider {
         }
 
         return new PreventCropGrowingFeature(isEnabled, parsedCrops);
+    }
+
+    public PotionEffectsFeature getPotionEffectsFeature() {
+        boolean isEnabled = configManager.getBooleanValue(POTION_EFFECTS_ENABLED);
+        Map<String, Object> rawEntries = configManager.getValuesFromBase(POTION_EFFECTS_ENTRIES_BASE);
+        List<PotionEffect> parsedEntries = new ArrayList<>();
+
+        rawEntries.forEach((key, value) -> {
+            String path = POTION_EFFECTS_ENTRIES_BASE.getPath() + "." + key;
+
+            try {
+                PotionEffectType type = Registry.EFFECT.get(NamespacedKey.fromString(key.toLowerCase()));
+
+                if(type == null) {
+                    logger.warn(key + " is not a valid potion effect type. Path in config: " + path);
+                    return;
+                }
+
+                int level = Integer.parseInt(value.toString()) - 1;
+
+                parsedEntries.add(new PotionEffect(type, 8 * 20, level));
+            } catch (Exception e) {
+                logger.warn(value + " is not a valid effect value. Path in config: " + path);
+            }
+        });
+
+        return new PotionEffectsFeature(isEnabled, parsedEntries);
     }
 
     private SeasonConfigManager getConfigManager() {
