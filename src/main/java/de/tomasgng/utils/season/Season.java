@@ -37,9 +37,9 @@ public class Season {
     private final SeasonType seasonType;
     private final Random random = new Random();
 
-    private ConfigDataProvider configDataProvider;
-    private SeasonConfigDataProvider seasonConfigDataProvider;
-    private List<World> worlds = new ArrayList<>();
+    private final ConfigDataProvider configDataProvider;
+    private final SeasonConfigDataProvider seasonConfigDataProvider;
+    private final List<World> worlds = new ArrayList<>();
 
     private WeatherFeature weatherFeature;
     private RandomTickSpeedFeature randomTickSpeedFeature;
@@ -67,6 +67,8 @@ public class Season {
 
     private void initWorlds() {
         List<String> worldNames = configDataProvider.getWorlds();
+
+        worlds.clear();
 
         for (String worldName : worldNames) {
             World world = Bukkit.getWorld(worldName);
