@@ -27,7 +27,6 @@ public final class SeasonConfigPathProvider {
     @ConfigExclude
     public static ConfigPair CREATURE_ATTRIBUTES_ENTRIES_BASE = new ConfigPair("creatureAttributes.entries", true);
     public static ConfigPair CREATURE_ATTRIBUTES_ENTRIES_EXAMPLE_1_ATTRIBUTE = new ConfigPair("creatureAttributes.entries.zombie.generic_max_health", 40.0);
-//    public static ConfigPair CREATURE_ATTRIBUTES_ENTRIES_EXAMPLE_2_ATTRIBUTE = new ConfigPair("creatureAttributes.entries.zombie.", true);
     @ConfigExclude(excludeComments = false)
     public static ConfigPair COMMENT_CREATURE_ATTRIBUTES = new ConfigPair("creatureAttributes", null,
             "List of attributes can be found here: https://jd.papermc.io/paper/1.20.6/org/bukkit/attribute/Attribute.html#enum-constant-summary",
