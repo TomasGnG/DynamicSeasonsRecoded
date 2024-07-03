@@ -8,12 +8,19 @@ import de.tomasgng.utils.features.*;
 import de.tomasgng.utils.features.utils.AnimalGrowingEntry;
 import de.tomasgng.utils.features.utils.AnimalSpawningEntry;
 import de.tomasgng.utils.features.utils.CreatureAttributesEntry;
+import de.tomasgng.utils.features.utils.LootDropsEntry;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.TreeType;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -204,6 +211,97 @@ public class SeasonConfigDataProvider {
         });
 
         return new PotionEffectsFeature(isEnabled, parsedEntries);
+    }
+
+    public LootDropsFeature getLootDropsFeature() {
+        boolean isEnabled = configManager.getBooleanValue(LOOT_DROPS_ENABLED);
+        Set<String> rawEntityTypes = configManager.getKeysFromBase(LOOT_DROPS_ENTRIES_BASE);
+        Map<EntityType, List<LootDropsEntry>> parsedEntries = new HashMap<>();
+
+        for (String rawEntityType : rawEntityTypes) {
+            String entityPath = LOOT_DROPS_ENTRIES_BASE.getPath() + "." + rawEntityType;
+
+            List<LootDropsEntry> lootDropsEntries = new ArrayList<>();
+            EntityType entityType;
+
+            try {
+                entityType = EntityType.valueOf(rawEntityType.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                logger.warn(rawEntityType + " is not a valid entity entityType. Path in config: " + entityPath);
+                continue;
+            }
+
+            var rawMaterialTypes = configManager.getKeysFromBase(new ConfigPair(entityPath));
+
+            for (String rawMaterialType : rawMaterialTypes) {
+                String materialPath = entityPath + "." + rawMaterialType;
+
+                Material material;
+                try {
+                    material = Material.valueOf(rawMaterialType.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    logger.warn(rawMaterialType + " is not a valid material. Path in config: " + materialPath);
+                    continue;
+                }
+
+                Component displayname = configManager.getComponentValue(new ConfigPair(materialPath + "." + LOOT_DROPS_ENTRIES_DISPLAYNAME_BASE.getPath()));
+                List<Component> loreList = parseListToComponent(configManager.getStringListValue(new ConfigPair(materialPath + "." + LOOT_DROPS_ENTRIES_LORE_BASE.getPath(), new ArrayList<>())));
+                int amount = configManager.getIntegerValue(new ConfigPair(materialPath + "." + LOOT_DROPS_ENTRIES_AMOUNT_BASE.getPath(), 1));
+                int dropChance = configManager.getIntegerValue(new ConfigPair(materialPath + "." + LOOT_DROPS_ENTRIES_DROPCHANCE_BASE.getPath(), 0));
+                Map<String, Object> rawEnchantments = configManager.getValuesFromBase(new ConfigPair(materialPath + "." + LOOT_DROPS_ENTRIES_ENCHANTMENTS_BASE.getPath()));
+                Map<Enchantment, Integer> parsedEnchantments = new HashMap<>();
+
+                rawEnchantments.forEach((key, value) -> {
+                    String enchantmentPath = materialPath + "." + LOOT_DROPS_ENTRIES_ENCHANTMENTS_BASE.getPath() + "." + key;
+                    try {
+                        Enchantment enchantment = Registry.ENCHANTMENT.get(NamespacedKey.fromString(key.toLowerCase()));
+
+                        if(enchantment == null) {
+                            logger.warn(key + " is not a valid enchantment entityType. Path in config: " + enchantmentPath);
+                            return;
+                        }
+
+                        int level = Integer.parseInt(value.toString());
+
+                        parsedEnchantments.put(enchantment, level);
+                    } catch (NumberFormatException e) {
+                        logger.warn(key + " is not a valid enchantment value. Path in config: " + enchantmentPath);
+                    }
+                });
+
+                ItemStack itemStack = new ItemStack(material);
+                itemStack.setAmount(amount);
+
+                ItemMeta itemMeta = itemStack.getItemMeta();
+
+                if(displayname != null)
+                    itemMeta.displayName(displayname.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE));
+
+                if(!loreList.isEmpty())
+                    itemMeta.lore(loreList);
+
+                if(!parsedEnchantments.isEmpty())
+                    parsedEnchantments.forEach((enchantment, level) -> itemMeta.addEnchant(enchantment, level, true));
+
+                itemStack.setItemMeta(itemMeta);
+
+                lootDropsEntries.add(new LootDropsEntry(dropChance, itemStack));
+            }
+
+            parsedEntries.put(entityType, lootDropsEntries);
+        }
+
+        return new LootDropsFeature(isEnabled, parsedEntries);
+    }
+
+    private List<Component> parseListToComponent(List<String> list) {
+        final MiniMessage mm = MiniMessage.miniMessage();
+
+        return list.stream()
+                .map(mm::deserializeOrNull)
+                .filter(Objects::nonNull)
+                .map(x -> x.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE))
+                .toList();
     }
 
     private SeasonConfigManager getConfigManager() {

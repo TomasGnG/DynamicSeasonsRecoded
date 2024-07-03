@@ -1,10 +1,12 @@
 package de.tomasgng.utils.config;
 
+import de.tomasgng.DynamicSeasons;
 import de.tomasgng.utils.PluginLogger;
 import de.tomasgng.utils.config.pathproviders.SeasonConfigPathProvider;
 import de.tomasgng.utils.config.utils.ConfigExclude;
 import de.tomasgng.utils.config.utils.ConfigPair;
 import de.tomasgng.utils.enums.SeasonType;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -14,6 +16,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.logging.Level;
 
 public class SeasonConfigManager {
 
@@ -119,19 +122,23 @@ public class SeasonConfigManager {
     }
 
     public Object getObjectValue(ConfigPair pair) {
-        return getObject(pair);
+        reload();
+        return cfg.get(pair.getPath(), pair.getValue());
     }
 
     public String getStringValue(ConfigPair pair) {
-        return getString(pair);
+        reload();
+        return cfg.getString(pair.getPath(), pair.getStringValue());
     }
 
     public boolean getBooleanValue(ConfigPair pair) {
-        return getBoolean(pair);
+        reload();
+        return cfg.getBoolean(pair.getPath(), pair.getBooleanValue());
     }
 
     public int getIntegerValue(ConfigPair pair) {
-        return getInteger(pair);
+        reload();
+        return cfg.getInt(pair.getPath(), pair.getIntegerValue());
     }
 
     public Map<String, Object> getValuesFromBase(ConfigPair base) {
@@ -143,33 +150,32 @@ public class SeasonConfigManager {
         return section.getValues(false);
     }
 
+    public Set<String> getKeysFromBase(ConfigPair base) {
+        ConfigurationSection section = cfg.getConfigurationSection(base.getPath());
+
+        if(section == null)
+            return new HashSet<>();
+
+        return section.getKeys(false);
+    }
+
     public List<String> getStringListValue(ConfigPair pair) {
-        return getStringList(pair);
-    }
-
-    private Object getObject(ConfigPair pair) {
-        reload();
-        return cfg.get(pair.getPath(), pair.getValue());
-    }
-
-    private String getString(ConfigPair pair) {
-        reload();
-        return cfg.getString(pair.getPath(), pair.getStringValue());
-    }
-
-    private boolean getBoolean(ConfigPair pair) {
-        reload();
-        return cfg.getBoolean(pair.getPath(), pair.getBooleanValue());
-    }
-
-    private int getInteger(ConfigPair pair) {
-        reload();
-        return cfg.getInt(pair.getPath(), pair.getIntegerValue());
-    }
-
-    private List<String> getStringList(ConfigPair pair) {
         reload();
         return cfg.getStringList(pair.getPath());
+    }
+
+    public Component getComponentValue(ConfigPair pair) {
+        String value = getStringValue(pair);
+
+        if(value == null)
+            return null;
+
+        try {
+            return mm.deserialize(value);
+        } catch (Exception e) {
+            DynamicSeasons.getInstance().getLogger().log(Level.WARNING, "The message {" + value + "} is not in MiniMessage format! Source (" + pair.getPath() + ")" + System.lineSeparator() + e.getMessage());
+            return mm.deserialize(pair.getStringValue());
+        }
     }
 
     private void set(ConfigPair pair) {

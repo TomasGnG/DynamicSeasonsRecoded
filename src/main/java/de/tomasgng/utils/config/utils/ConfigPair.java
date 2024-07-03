@@ -12,6 +12,11 @@ public class ConfigPair {
         this.value = value;
     }
 
+    public ConfigPair(String path) {
+        this.path = path;
+        this.value = null;
+    }
+
     public ConfigPair(String path, Object value, String... comments) {
         this.path = path;
         this.value = value;

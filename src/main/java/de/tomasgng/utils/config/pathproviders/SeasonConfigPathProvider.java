@@ -58,4 +58,36 @@ public final class SeasonConfigPathProvider {
             "List of all potion effects: https://jd.papermc.io/paper/1.20.6/org/bukkit/potion/PotionEffectType.html#field-summary",
             "Entry format:",
             "potion_effect: potion_amplifier");
+
+    public static ConfigPair LOOT_DROPS_ENABLED = new ConfigPair("lootDrops.enabled", true);
+    @ConfigExclude
+    public static ConfigPair LOOT_DROPS_ENTRIES_BASE = new ConfigPair("lootDrops.entries");
+    @ConfigExclude
+    public static ConfigPair LOOT_DROPS_ENTRIES_ENCHANTMENTS_BASE = new ConfigPair("enchantments");
+    @ConfigExclude
+    public static ConfigPair LOOT_DROPS_ENTRIES_DISPLAYNAME_BASE = new ConfigPair("displayname");
+    @ConfigExclude
+    public static ConfigPair LOOT_DROPS_ENTRIES_LORE_BASE = new ConfigPair("lore");
+    @ConfigExclude
+    public static ConfigPair LOOT_DROPS_ENTRIES_AMOUNT_BASE = new ConfigPair("amount");
+    @ConfigExclude
+    public static ConfigPair LOOT_DROPS_ENTRIES_DROPCHANCE_BASE = new ConfigPair("dropChance");
+    public static ConfigPair LOOT_DROPS_ENTRIES_EXAMPLE_DISPLAYNAME = new ConfigPair("lootDrops.entries.zombie.diamond_sword.displayname", "<yellow>Tomas' Legendary Sword");
+    public static ConfigPair LOOT_DROPS_ENTRIES_EXAMPLE_LORE = new ConfigPair("lootDrops.entries.zombie.diamond_sword.lore", List.of("<gray>This sword", "<gray>is <red>dangerous</red>!"));
+    public static ConfigPair LOOT_DROPS_ENTRIES_EXAMPLE_AMOUNT = new ConfigPair("lootDrops.entries.zombie.diamond_sword.amount", 1);
+    public static ConfigPair LOOT_DROPS_ENTRIES_EXAMPLE_DROPCHANCE = new ConfigPair("lootDrops.entries.zombie.diamond_sword.dropChance", 10);
+    public static ConfigPair LOOT_DROPS_ENTRIES_EXAMPLE_ENCHANTMENTS_1 = new ConfigPair("lootDrops.entries.zombie.diamond_sword.enchantments.sharpness", 3);
+    public static ConfigPair LOOT_DROPS_ENTRIES_EXAMPLE_ENCHANTMENTS_2 = new ConfigPair("lootDrops.entries.zombie.diamond_sword.enchantments.unbreaking", 5);
+    @ConfigExclude(excludeComments = false)
+    public static ConfigPair COMMENT_LOOT_DROPS = new ConfigPair("lootDrops", null,
+            "You can add infinite amount of items to an entitytype (as an example: zombie).",
+            "List of EntityTypes: https://jd.papermc.io/paper/1.20.6/org/bukkit/entity/EntityType.html#enum-constant-summary",
+            "List of MaterialTypes: https://jd.papermc.io/paper/1.20.6/org/bukkit/Material.html#enum-constant-summary",
+            "List of EnchantmentTypes: https://jd.papermc.io/paper/1.20.6/org/bukkit/enchantments/Enchantment.html#field-summary",
+            "",
+            "Format:",
+            "entity_type:",
+            "  material_type:",
+            "    (options): (values)"
+    );
 }

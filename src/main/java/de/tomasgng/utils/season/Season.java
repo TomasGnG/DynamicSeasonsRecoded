@@ -9,6 +9,7 @@ import de.tomasgng.utils.features.*;
 import de.tomasgng.utils.features.utils.AnimalGrowingEntry;
 import de.tomasgng.utils.features.utils.AnimalSpawningEntry;
 import de.tomasgng.utils.features.utils.CreatureAttributesEntry;
+import de.tomasgng.utils.features.utils.LootDropsEntry;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -19,6 +20,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.world.StructureGrowEvent;
@@ -48,6 +50,7 @@ public class Season {
     private AnimalGrowingFeature animalGrowingFeature;
     private PreventCropGrowingFeature preventCropGrowingFeature;
     private PotionEffectsFeature potionEffectsFeature;
+    private LootDropsFeature lootDropsFeature;
 
     private ScheduledTask potionEffectsTimer;
 
@@ -91,6 +94,7 @@ public class Season {
         animalGrowingFeature = seasonConfigDataProvider.getAnimalGrowingFeature();
         preventCropGrowingFeature = seasonConfigDataProvider.getPreventCropGrowingFeature();
         potionEffectsFeature = seasonConfigDataProvider.getPotionEffectsFeature();
+        lootDropsFeature = seasonConfigDataProvider.getLootDropsFeature();
     }
 
     public void handleWeatherChangeEvent(WeatherChangeEvent e) {
@@ -271,6 +275,24 @@ public class Season {
                     player.addPotionEffect(effect);
             }
         });
+    }
+
+    public void handleLootDrops(EntityDeathEvent e) {
+        if(!lootDropsFeature.isEnabled())
+            return;
+
+        EntityType entityType = e.getEntityType();
+        List<LootDropsEntry> drops = lootDropsFeature.getDrops(entityType);
+
+        if(drops == null)
+            return;
+
+        for (LootDropsEntry entry : drops) {
+            int randomSpawnChance = random.nextInt(1, 101);
+
+            if(randomSpawnChance <= entry.dropChance())
+                e.getDrops().add(entry.itemStack());
+        }
     }
 
     private boolean isNotWhitelistedWorld(World world) {
