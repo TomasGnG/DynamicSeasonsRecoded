@@ -13,6 +13,7 @@ import de.tomasgng.utils.config.dataproviders.MessageDataProvider;
 import de.tomasgng.utils.config.dataproviders.SeasonConfigDataProvider;
 import de.tomasgng.utils.config.dataproviders.SeasonDataProvider;
 import de.tomasgng.utils.season.SeasonManager;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -35,6 +36,9 @@ public final class DynamicSeasons extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        if(!CheckIfServerTypeIsPaper())
+            return;
+
         INSTANCE = this;
 
         init();
@@ -43,9 +47,22 @@ public final class DynamicSeasons extends JavaPlugin {
         placeholderManager.registerAll();
     }
 
+    private boolean CheckIfServerTypeIsPaper() {
+        try {
+            Class.forName(com.destroystokyo.paper.event.player.PlayerJumpEvent.class.getName());
+            return true;
+        } catch (NoClassDefFoundError | ClassNotFoundException e) {
+            getLogger().severe("Paper is required for this plugin. Download paper at: https://papermc.io/downloads/paper");
+            getLogger().severe("Disabling this plugin..");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return false;
+        }
+    }
+
     @Override
     public void onDisable() {
-        placeholderManager.unregisterAll();
+        if(placeholderManager != null)
+            placeholderManager.unregisterAll();
     }
 
     private void init() {
