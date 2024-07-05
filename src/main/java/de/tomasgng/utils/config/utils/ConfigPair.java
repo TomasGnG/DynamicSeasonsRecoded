@@ -43,6 +43,10 @@ public class ConfigPair {
         return Integer.parseInt(getStringValue());
     }
 
+    public double getDoubleValue() {
+        return Double.parseDouble(getStringValue());
+    }
+
     public List<String> getStringListValue() {
         return (List<String>) value;
     }

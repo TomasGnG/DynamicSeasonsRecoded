@@ -1,15 +1,13 @@
 package de.tomasgng.utils.season;
 
+import com.destroystokyo.paper.ParticleBuilder;
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import de.tomasgng.DynamicSeasons;
 import de.tomasgng.utils.config.dataproviders.ConfigDataProvider;
 import de.tomasgng.utils.config.dataproviders.SeasonConfigDataProvider;
 import de.tomasgng.utils.enums.SeasonType;
 import de.tomasgng.utils.features.*;
-import de.tomasgng.utils.features.utils.AnimalGrowingEntry;
-import de.tomasgng.utils.features.utils.AnimalSpawningEntry;
-import de.tomasgng.utils.features.utils.CreatureAttributesEntry;
-import de.tomasgng.utils.features.utils.LootDropsEntry;
+import de.tomasgng.utils.features.utils.*;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -25,6 +23,7 @@ import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -51,8 +50,10 @@ public class Season {
     private PreventCropGrowingFeature preventCropGrowingFeature;
     private PotionEffectsFeature potionEffectsFeature;
     private LootDropsFeature lootDropsFeature;
+    private ParticlesFeature particlesFeature;
 
     private ScheduledTask potionEffectsTimer;
+    private BukkitTask particlesTimer;
 
     public Season(SeasonType seasonType) {
         this.seasonType = seasonType;
@@ -70,6 +71,7 @@ public class Season {
             ));
 
         handlePotionEffects();
+        handleParticles();
     }
 
     private void initWorlds() {
@@ -95,6 +97,7 @@ public class Season {
         preventCropGrowingFeature = seasonConfigDataProvider.getPreventCropGrowingFeature();
         potionEffectsFeature = seasonConfigDataProvider.getPotionEffectsFeature();
         lootDropsFeature = seasonConfigDataProvider.getLootDropsFeature();
+        particlesFeature = seasonConfigDataProvider.getParticlesFeature();
     }
 
     public void handleWeatherChangeEvent(WeatherChangeEvent e) {
@@ -293,6 +296,28 @@ public class Season {
             if(randomSpawnChance <= entry.dropChance())
                 e.getDrops().add(entry.itemStack());
         }
+    }
+
+    public void handleParticles() {
+        if(particlesTimer != null)
+            particlesTimer.cancel();
+
+        particlesTimer = Bukkit.getScheduler().runTaskTimerAsynchronously(DynamicSeasons.getInstance(), () -> {
+            if(!particlesFeature.isEnabled())
+                return;
+
+            List<Player> players = new ArrayList<>();
+            worlds.forEach(world -> players.addAll(world.getPlayers()));
+
+            for (ParticlesEntry entry : particlesFeature.entries()) {
+                ParticleBuilder particleBuilder = new ParticleBuilder(entry.particle())
+                        .count(random.nextInt(entry.minSpawnAmount(), entry.maxSpawnAmount()+1))
+                        .extra(entry.speed())
+                        .offset(entry.offsetX(), entry.offsetY(), entry.offsetZ());
+
+                players.forEach(player -> particleBuilder.receivers(player).location(player.getLocation()).spawn());
+            }
+        }, particlesFeature.spawnTimeInTicks(), particlesFeature.spawnTimeInTicks());
     }
 
     private boolean isNotWhitelistedWorld(World world) {

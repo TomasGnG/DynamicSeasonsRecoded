@@ -141,6 +141,11 @@ public class SeasonConfigManager {
         return cfg.getInt(pair.getPath(), pair.getIntegerValue());
     }
 
+    public double getDoubleValue(ConfigPair pair) {
+        reload();
+        return cfg.getDouble(pair.getPath(), pair.getDoubleValue());
+    }
+
     public Map<String, Object> getValuesFromBase(ConfigPair base) {
         ConfigurationSection section = cfg.getConfigurationSection(base.getPath());
 

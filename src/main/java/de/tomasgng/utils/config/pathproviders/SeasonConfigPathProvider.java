@@ -89,4 +89,21 @@ public final class SeasonConfigPathProvider {
             "  material_type:",
             "    (options): (values)"
     );
+
+    public static ConfigPair PARTICLES_ENABLED = new ConfigPair("particles.enabled", true);
+    public static ConfigPair PARTICLES_X_OFFSET = new ConfigPair("particles.offset.x", 5.0);
+    public static ConfigPair PARTICLES_Y_OFFSET = new ConfigPair("particles.offset.y", 10.0);
+    public static ConfigPair PARTICLES_Z_OFFSET = new ConfigPair("particles.offset.z", 5.0);
+    public static ConfigPair PARTICLES_SPAWNTIME = new ConfigPair("particles.spawnTime", 5, "Time in ticks (20 ticks = 1 second)");
+    public static ConfigPair PARTICLES_SPEED = new ConfigPair("particles.speed", 0.0, "Speed of the particles");
+    @ConfigExclude
+    public static ConfigPair PARTICLES_ENTRIES_BASE = new ConfigPair("particles.entries", null);
+    @ConfigExclude
+    public static ConfigPair PARTICLES_ENTRIES_MINSPAWNAMOUNT_BASE = new ConfigPair("minSpawnAmount", null);
+    @ConfigExclude
+    public static ConfigPair PARTICLES_ENTRIES_MAXSPAWNAMOUNT_BASE = new ConfigPair("maxSpawnAmount", null);
+    public static ConfigPair PARTICLES_ENTRIES_EXAMPLE_MINSPAWNAMOUNT = new ConfigPair("particles.entries.snowflake." + PARTICLES_ENTRIES_MINSPAWNAMOUNT_BASE.getPath(), 10);
+    public static ConfigPair PARTICLES_ENTRIES_EXAMPLE_MAXSPAWNAMOUNT = new ConfigPair("particles.entries.snowflake." + PARTICLES_ENTRIES_MAXSPAWNAMOUNT_BASE.getPath(), 50);
+    @ConfigExclude
+    public static ConfigPair COMMENT_PARTICLES_OFFSET = new ConfigPair("particles.offset", null, "Spread the spawned in all directions.", "As an example: 5 means it will spread the spawned particles within 5 blocks.");
 }

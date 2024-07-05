@@ -5,17 +5,11 @@ import de.tomasgng.utils.PluginLogger;
 import de.tomasgng.utils.config.SeasonConfigManager;
 import de.tomasgng.utils.config.utils.ConfigPair;
 import de.tomasgng.utils.features.*;
-import de.tomasgng.utils.features.utils.AnimalGrowingEntry;
-import de.tomasgng.utils.features.utils.AnimalSpawningEntry;
-import de.tomasgng.utils.features.utils.CreatureAttributesEntry;
-import de.tomasgng.utils.features.utils.LootDropsEntry;
+import de.tomasgng.utils.features.utils.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
-import org.bukkit.TreeType;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
@@ -292,6 +286,58 @@ public class SeasonConfigDataProvider {
         }
 
         return new LootDropsFeature(isEnabled, parsedEntries);
+    }
+
+    public ParticlesFeature getParticlesFeature() {
+        boolean isEnabled = configManager.getBooleanValue(PARTICLES_ENABLED);
+        double offsetX = configManager.getDoubleValue(PARTICLES_X_OFFSET);
+        double offsetY = configManager.getDoubleValue(PARTICLES_Y_OFFSET);
+        double offsetZ = configManager.getDoubleValue(PARTICLES_Z_OFFSET);
+        int spawnTime = configManager.getIntegerValue(PARTICLES_SPAWNTIME);
+        double particleSpeed = configManager.getDoubleValue(PARTICLES_SPEED);
+
+        if(spawnTime <= 0) {
+            logger.warn(spawnTime + " is not a valid spawn time. Value must be greater than 0. Set spawn time to " + PARTICLES_SPAWNTIME.getIntegerValue() + ". Path in config: " + PARTICLES_SPAWNTIME.getPath());
+            spawnTime = PARTICLES_SPAWNTIME.getIntegerValue();
+        }
+
+        if(particleSpeed < 0) {
+            logger.warn(particleSpeed + " is not a valid particle speed. Value must be a positive decimal. Set speed to " + PARTICLES_SPEED.getDoubleValue() + ". Path in config: " + PARTICLES_SPEED.getPath());
+            particleSpeed = PARTICLES_SPEED.getDoubleValue();
+        }
+
+        Set<String> rawParticleTypes = configManager.getKeysFromBase(PARTICLES_ENTRIES_BASE);
+        List<ParticlesEntry> parsedEntries = new ArrayList<>();
+
+        for (String rawParticleType : rawParticleTypes) {
+            String particlePath = PARTICLES_ENTRIES_BASE.getPath() + "." + rawParticleType;
+
+            Particle particleType;
+
+            try {
+                particleType = Particle.valueOf(rawParticleType.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                logger.warn(rawParticleType + " is not a valid particle. Path in config: " + particlePath);
+                continue;
+            }
+
+            int minSpawnAmount = configManager.getIntegerValue(new ConfigPair(particlePath + "." + PARTICLES_ENTRIES_MINSPAWNAMOUNT_BASE.getPath(), 10));
+            int maxSpawnAmount = configManager.getIntegerValue(new ConfigPair(particlePath + "." + PARTICLES_ENTRIES_MAXSPAWNAMOUNT_BASE.getPath(), 40));
+
+            if(minSpawnAmount > maxSpawnAmount) {
+                logger.warn("minSpawnAmount can't be greater than maxSpawnAmount! Path in config: " + particlePath + "." + PARTICLES_ENTRIES_MINSPAWNAMOUNT_BASE.getPath());
+                continue;
+            }
+
+            if(minSpawnAmount < 0) {
+                logger.warn("minSpawnAmount must be a positive number. Path in config: " + particlePath + "." + PARTICLES_ENTRIES_MINSPAWNAMOUNT_BASE.getPath());
+                continue;
+            }
+
+            parsedEntries.add(new ParticlesEntry(minSpawnAmount, maxSpawnAmount, particleSpeed, offsetX, offsetY, offsetZ, particleType));
+        }
+
+        return new ParticlesFeature(isEnabled, spawnTime, parsedEntries);
     }
 
     private List<Component> parseListToComponent(List<String> list) {

@@ -3,6 +3,7 @@ package de.tomasgng;
 import de.tomasgng.commands.DynamicSeasonsCommand;
 import de.tomasgng.listeners.*;
 import de.tomasgng.placeholders.PlaceholderManager;
+import de.tomasgng.utils.Metrics;
 import de.tomasgng.utils.VersionChecker;
 import de.tomasgng.utils.config.ConfigManager;
 import de.tomasgng.utils.config.MessageManager;
@@ -16,6 +17,9 @@ import de.tomasgng.utils.season.SeasonManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public final class DynamicSeasons extends JavaPlugin {
 
@@ -78,6 +82,14 @@ public final class DynamicSeasons extends JavaPlugin {
 
         seasonManager = new SeasonManager();
         placeholderManager = new PlaceholderManager();
+
+        Metrics metrics = new Metrics(this, 19158);
+        metrics.addCustomChart(new Metrics.MultiLineChart("players_and_servers", () -> {
+            Map<String, Integer> valueMap = new HashMap<>();
+            valueMap.put("servers", 1);
+            valueMap.put("players", Bukkit.getOnlinePlayers().size());
+            return valueMap;
+        }));
 
         registerEvents();
 
