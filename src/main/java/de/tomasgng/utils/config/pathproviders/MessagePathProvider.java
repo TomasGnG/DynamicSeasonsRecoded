@@ -19,6 +19,8 @@ public final class MessagePathProvider {
             "<yellow>/dynseasons <dark_gray>| <gray>Shows the usage message",
             "<yellow>/dynseasons setseason <New Season> <dark_gray>| <gray>Changes the current season",
             "<yellow>/dynseasons setremainingtime <New Remaining Time> <dark_gray>| <gray>Changes the remaining time for the next season",
+            "<yellow>/dynseasons reload <dark_gray>| <gray>Reloads the config files",
+            "<yellow>/dynseasons update <dark_gray>| <gray>Updates the plugin to the newest version",
             " "
     ));
     public static ConfigPair COMMAND_NO_PERMISSION = new ConfigPair("command.noPermission", "%prefix% <gray>You don't have the permission to execute this command.");
