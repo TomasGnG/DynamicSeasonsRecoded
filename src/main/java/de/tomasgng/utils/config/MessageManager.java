@@ -32,8 +32,11 @@ public class MessageManager {
         if(!folder.exists())
             folder.mkdirs();
 
-        if(configFile.exists())
+        if(configFile.exists()) {
+            setMissingConfigPaths();
+            save();
             return;
+        }
 
         try {
             configFile.createNewFile();
@@ -65,6 +68,41 @@ public class MessageManager {
 
                         if(!configExclude.excludeComments())
                             commentConfigPairs.add((ConfigPair) field.get(ConfigPair.class));
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        configPairs.forEach(this::set);
+        commentConfigPairs.forEach(this::setComments);
+    }
+
+    private void setMissingConfigPaths() {
+        List<ConfigPair> configPairs = new ArrayList<>();
+        List<ConfigPair> commentConfigPairs = new ArrayList<>();
+        List<Class> pathProviders = new ArrayList<>();
+
+        pathProviders.add(MessagePathProvider.class);
+
+        pathProviders.forEach(pathProvider -> {
+            List<Field> fieldList = Arrays.stream(pathProvider.getDeclaredFields()).filter(field -> Modifier.isStatic(field.getModifiers())).toList();
+            for (Field field : fieldList) {
+                try {
+                    ConfigPair configPair = (ConfigPair) field.get(ConfigPair.class);
+
+                    if(cfg.isSet(configPair.getPath()))
+                        continue;
+
+                    if(field.getAnnotation(ConfigExclude.class) == null) {
+                        configPairs.add(configPair);
+                    }
+                    else {
+                        ConfigExclude configExclude = field.getAnnotation(ConfigExclude.class);
+
+                        if(!configExclude.excludeComments())
+                            commentConfigPairs.add(configPair);
                     }
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
