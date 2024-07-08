@@ -32,8 +32,11 @@ public class ConfigManager {
         if(!folder.exists())
             folder.mkdirs();
 
-        if(configFile.exists())
+        if(configFile.exists()) {
+            setMissingConfigPaths();
+            save();
             return;
+        }
 
         try {
             configFile.createNewFile();
@@ -64,6 +67,41 @@ public class ConfigManager {
                         ConfigExclude configExclude = field.getAnnotation(ConfigExclude.class);
 
                         if(!configExclude.excludeComments())
+                            commentConfigPairs.add((ConfigPair) field.get(ConfigPair.class));
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        configPairs.forEach(this::set);
+        commentConfigPairs.forEach(this::setComments);
+    }
+
+    private void setMissingConfigPaths() {
+        List<ConfigPair> configPairs = new ArrayList<>();
+        List<ConfigPair> commentConfigPairs = new ArrayList<>();
+        List<Class> pathProviders = new ArrayList<>();
+
+        pathProviders.add(ConfigPathProvider.class);
+
+        pathProviders.forEach(pathProvider -> {
+            List<Field> fieldList = Arrays.stream(pathProvider.getDeclaredFields()).filter(field -> Modifier.isStatic(field.getModifiers())).toList();
+            for (Field field : fieldList) {
+                try {
+                    ConfigPair pair = (ConfigPair) field.get(ConfigPair.class);
+
+                    if(field.getAnnotation(ConfigExclude.class) == null) {
+                        if(field.getName().contains("EXAMPLE")) {
+                            if(!cfg.isSet(pair.getPath().split("\\.")[0]))
+                                configPairs.add(pair);
+                        } else if(!cfg.isSet(pair.getPath()))
+                            configPairs.add(pair);
+                    } else {
+                        ConfigExclude configExclude = field.getAnnotation(ConfigExclude.class);
+
+                        if(!configExclude.excludeComments() && !cfg.isSet(pair.getPath()))
                             commentConfigPairs.add((ConfigPair) field.get(ConfigPair.class));
                     }
                 } catch (IllegalAccessException e) {
