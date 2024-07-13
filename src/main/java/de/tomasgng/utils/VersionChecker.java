@@ -3,15 +3,17 @@ package de.tomasgng.utils;
 import de.tomasgng.DynamicSeasons;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 import java.util.logging.Logger;
 
 public final class VersionChecker {
@@ -21,7 +23,6 @@ public final class VersionChecker {
     private final Logger logger = DynamicSeasons.getInstance().getLogger();
     private final MiniMessage mm = MiniMessage.miniMessage();
 
-    private final String versionUrl = "https://pastebin.com/raw/DZXYPzR7";
     private final String currentVersion = DynamicSeasons.getInstance().getPluginMeta().getVersion();
 
     public static VersionChecker getInstance() {
@@ -79,14 +80,16 @@ public final class VersionChecker {
     }
 
     public String getUrlVersion() {
+        String spigetUrl = "https://api.spiget.org/v2/resources/111362/versions/latest";
         String version = currentVersion;
 
         try {
-            URL url = new URI(versionUrl).toURL();
-            Scanner scanner = new Scanner(url.openStream());
+            URL url = new URI(spigetUrl).toURL();
+            String rawJson = IOUtils.toString(url, StandardCharsets.UTF_8);
+            JSONObject jsonObject = new JSONObject(rawJson);
 
-            if(scanner.hasNext())
-                version = scanner.next();
+            if(jsonObject.has("name"))
+                version = jsonObject.get("name").toString();
         } catch (URISyntaxException | IOException e) {
             logger.severe(e.getLocalizedMessage());
         }
