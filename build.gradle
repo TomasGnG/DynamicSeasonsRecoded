@@ -1,9 +1,10 @@
 plugins {
     id 'java'
+    id "io.github.goooler.shadow" version "8.1.8"
 }
 
 group = 'de.tomasgng'
-version = '2.0.1'
+version = '2.0.2'
 
 repositories {
     mavenCentral()
@@ -23,6 +24,8 @@ repositories {
 dependencies {
     compileOnly "io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT"
     compileOnly 'me.clip:placeholderapi:2.11.6'
+    compileOnly "commons-io:commons-io:2.16.1"
+    implementation 'org.json:json:20240303'
 }
 
 def targetJavaVersion = 21
