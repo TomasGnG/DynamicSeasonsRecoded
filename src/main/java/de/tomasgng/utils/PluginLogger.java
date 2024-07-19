@@ -2,7 +2,8 @@ package de.tomasgng.utils;
 
 import de.tomasgng.DynamicSeasons;
 import de.tomasgng.utils.config.dataproviders.MessageDataProvider;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
@@ -33,7 +34,9 @@ public class PluginLogger {
         sender.sendMessage(messageDataProvider.getCommandReloadWarnings());
 
         for (int i = 0; i < loggedMessages.size(); i++) {
-            sender.sendMessage(MiniMessage.miniMessage().deserialize("<yellow>" + (i+1) + ". " + loggedMessages.get(i)));
+            sender.sendMessage(Component.text((i + 1) + ". ")
+                                        .color(NamedTextColor.YELLOW)
+                                        .append(Component.text(loggedMessages.get(i).replaceAll("§", "&"))));
         }
 
         sender.sendMessage("");
