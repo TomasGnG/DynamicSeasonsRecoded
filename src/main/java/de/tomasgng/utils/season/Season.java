@@ -18,10 +18,12 @@ import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.world.StructureGrowEvent;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -51,6 +53,7 @@ public class Season {
     private PotionEffectsFeature potionEffectsFeature;
     private LootDropsFeature lootDropsFeature;
     private ParticlesFeature particlesFeature;
+    private BossSpawningFeature bossSpawningFeature;
 
     private ScheduledTask potionEffectsTimer;
     private BukkitTask particlesTimer;
@@ -87,7 +90,7 @@ public class Season {
         }
     }
 
-    private void initFeatures() {
+    public void initFeatures() {
         weatherFeature = seasonConfigDataProvider.getWeatherFeature();
         randomTickSpeedFeature = seasonConfigDataProvider.getRandomTickSpeedFeature();
         animalSpawningFeature = seasonConfigDataProvider.getAnimalSpawningFeature();
@@ -98,6 +101,7 @@ public class Season {
         potionEffectsFeature = seasonConfigDataProvider.getPotionEffectsFeature();
         lootDropsFeature = seasonConfigDataProvider.getLootDropsFeature();
         particlesFeature = seasonConfigDataProvider.getParticlesFeature();
+        bossSpawningFeature = seasonConfigDataProvider.getBossSpawningFeature();
     }
 
     public void handleWeatherChangeEvent(WeatherChangeEvent e) {
@@ -135,9 +139,50 @@ public class Season {
     }
 
     public void handleCreatureSpawnEvent(CreatureSpawnEvent e) {
+        if(handleBossSpawning(e))
+            return;
+
         handleAnimalSpawning(e);
         handleCreatureAttribute(e);
         handleAnimalGrowing(e);
+    }
+
+    private boolean handleBossSpawning(CreatureSpawnEvent event) {
+        if(!bossSpawningFeature.isEnabled())
+            return false;
+
+        if(bossSpawningFeature.isLivingBoss(event.getEntity()))
+            return true;
+
+        LivingEntity entity = event.getEntity();
+        String bossName = entity.getPersistentDataContainer().get(BossSpawningFeature.MANUAL_SPAWN_KEY, PersistentDataType.STRING);
+        BossSpawningEntry choosenEntry = null;
+
+        if(bossName == null) {
+            List<BossSpawningEntry> entries = bossSpawningFeature.getEntries(event.getEntityType());
+            int randomNumber = random.nextInt(101);
+
+            if(entries.isEmpty())
+                return false;
+
+            for (BossSpawningEntry current : entries) {
+                if(!current.shouldSpawnAsBoss(randomNumber))
+                    continue;
+
+                choosenEntry = current;
+                break;
+            }
+        } else
+            choosenEntry = bossSpawningFeature.getEntryByName(bossName);
+
+        if(choosenEntry == null)
+            return false;
+
+        BossSpawningEntry entry = new BossSpawningEntry(choosenEntry);
+
+        entry.setEntity(event.getEntity());
+        bossSpawningFeature.addLivingBoss(entry);
+        return true;
     }
 
     private void handleAnimalSpawning(CreatureSpawnEvent e) {
@@ -280,6 +325,18 @@ public class Season {
         });
     }
 
+    public void handleEntityDeathEvent(EntityDeathEvent e) {
+        LivingEntity entity = e.getEntity();
+
+        if(bossSpawningFeature.isLivingBoss(entity)) {
+            e.getDrops().addAll(bossSpawningFeature.getLivingBossEntry(entity).getLootDrops());
+            bossSpawningFeature.removeLivingBoss(entity);
+            return;
+        }
+
+        handleLootDrops(e);
+    }
+
     public void handleLootDrops(EntityDeathEvent e) {
         if(!lootDropsFeature.isEnabled())
             return;
@@ -320,11 +377,22 @@ public class Season {
         }, particlesFeature.spawnTimeInTicks(), particlesFeature.spawnTimeInTicks());
     }
 
+    public void handleEntityDamageEvent(EntityDamageEvent e) {
+        LivingEntity entity = (LivingEntity) e.getEntity();
+
+        if(bossSpawningFeature.isLivingBoss(entity))
+            bossSpawningFeature.getLivingBossEntry(entity).applyDisplayname();
+    }
+
     private boolean isNotWhitelistedWorld(World world) {
         return !worlds.contains(world);
     }
 
     public SeasonType getSeasonType() {
         return seasonType;
+    }
+
+    public BossSpawningFeature getBossSpawningFeature() {
+        return bossSpawningFeature;
     }
 }

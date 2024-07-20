@@ -1,6 +1,7 @@
 package de.tomasgng.utils.season;
 
 import de.tomasgng.DynamicSeasons;
+import de.tomasgng.utils.config.SeasonConfigManager;
 import de.tomasgng.utils.config.dataproviders.ConfigDataProvider;
 import de.tomasgng.utils.config.dataproviders.MessageDataProvider;
 import de.tomasgng.utils.config.dataproviders.SeasonDataProvider;
@@ -18,8 +19,15 @@ public class SeasonManager {
     private final SeasonDataProvider seasonDataProvider;
     private final ConfigDataProvider configDataProvider;
     private final MessageDataProvider messageDataProvider;
+    private final SeasonConfigManager seasonConfigManager;
 
-    private List<Season> seasons = List.of(new Season(SeasonType.SPRING), new Season(SeasonType.SUMMER), new Season(SeasonType.FALL), new Season(SeasonType.WINTER));
+    private final List<Season> seasons;
+    {
+        seasons = List.of(new Season(SeasonType.SPRING),
+                          new Season(SeasonType.SUMMER),
+                          new Season(SeasonType.FALL),
+                          new Season(SeasonType.WINTER));
+    }
 
     private Season currentSeason;
     private SeasonType lastSeasonType;
@@ -29,14 +37,16 @@ public class SeasonManager {
         seasonDataProvider = DynamicSeasons.getInstance().getSeasonDataProvider();
         configDataProvider = DynamicSeasons.getInstance().getConfigDataProvider();
         messageDataProvider = DynamicSeasons.getInstance().getMessageDataProvider();
+        seasonConfigManager = DynamicSeasons.getInstance().getSeasonConfigManager();
 
         currentSeason = seasons.stream().filter(x -> x.getSeasonType() == seasonDataProvider.getCurrentSeason()).findFirst().get();
         remainingTime = seasonDataProvider.getRemainingDuration();
 
-        DynamicSeasons.getInstance().getSeasonConfigManager().setConfigFile(currentSeason.getSeasonType());
+        seasonConfigManager.setConfigFile(currentSeason.getSeasonType());
 
         startSeasonTimer();
         currentSeason.init();
+        initSeasonFeatures();
     }
 
     public void startSeasonTimer() {
@@ -66,15 +76,26 @@ public class SeasonManager {
         seasonDataProvider.setCurrentSeason(currentSeason.getSeasonType());
         seasonDataProvider.setRemainingDuration(configDataProvider.getSeasonDuration());
         remainingTime = seasonDataProvider.getRemainingDuration();
-        DynamicSeasons.getInstance().getSeasonConfigManager().setConfigFile(currentSeason.getSeasonType());
+        seasonConfigManager.setConfigFile(currentSeason.getSeasonType());
         currentSeason.init();
 
         announceSeasonChange();
     }
 
     public void reload() {
+        seasonConfigManager.createFiles();
         DynamicSeasons.getInstance().getPlaceholderManager().reloadAll();
         currentSeason.init();
+        initSeasonFeatures();
+    }
+
+    private void initSeasonFeatures() {
+        seasons.forEach(x -> {
+            seasonConfigManager.setConfigFile(x.getSeasonType());
+            x.initFeatures();
+        });
+
+        seasonConfigManager.setConfigFile(currentSeason.getSeasonType());
     }
 
     private void changeSeason() {
@@ -111,6 +132,10 @@ public class SeasonManager {
 
     public Season getCurrentSeason() {
         return currentSeason;
+    }
+
+    public Season getSeason(SeasonType type) {
+        return seasons.stream().filter(x -> x.getSeasonType() == type).findFirst().orElse(null);
     }
 
     public SeasonType getLastSeasonType() {

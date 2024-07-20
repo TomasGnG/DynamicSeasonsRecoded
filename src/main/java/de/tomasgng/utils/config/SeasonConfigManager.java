@@ -1,6 +1,5 @@
 package de.tomasgng.utils.config;
 
-import de.tomasgng.DynamicSeasons;
 import de.tomasgng.utils.PluginLogger;
 import de.tomasgng.utils.config.pathproviders.SeasonConfigPathProvider;
 import de.tomasgng.utils.config.utils.ConfigExclude;
@@ -16,7 +15,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.logging.Level;
 
 public class SeasonConfigManager {
 
@@ -35,7 +33,7 @@ public class SeasonConfigManager {
         createFiles();
     }
 
-    private void createFiles() {
+    public void createFiles() {
         if(!folder.exists())
             folder.mkdirs();
 
@@ -211,14 +209,14 @@ public class SeasonConfigManager {
     public Component getComponentValue(ConfigPair pair) {
         String value = getStringValue(pair);
 
-        if(value == null)
+        if(value == null || value.isBlank())
             return null;
 
         try {
             return mm.deserialize(value);
         } catch (Exception e) {
-            DynamicSeasons.getInstance().getLogger().log(Level.WARNING, "The message {" + value + "} is not in MiniMessage format! Source (" + pair.getPath() + ")" + System.lineSeparator() + e.getMessage());
-            return mm.deserialize(pair.getStringValue());
+            PluginLogger.getInstance().warn("The message {" + value + "} is not in MiniMessage format! Source (" + pair.getPath() + ")" + System.lineSeparator() + e.getMessage());
+            return pair.getValue() != null ? mm.deserialize(pair.getStringValue()) : null;
         }
     }
 

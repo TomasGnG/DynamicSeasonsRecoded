@@ -21,8 +21,10 @@ public final class MessagePathProvider {
             "<yellow>/dynseasons setremainingtime <New Remaining Time> <dark_gray>| <gray>Changes the remaining time for the next season",
             "<yellow>/dynseasons reload <dark_gray>| <gray>Reloads the config files",
             "<yellow>/dynseasons update <dark_gray>| <gray>Updates the plugin to the newest version",
+            "<yellow>/dynseasons spawnboss <Seasons> <BossName> <dark_gray>| <gray>Spawns a boss from any season",
             " "
     ));
+    public static ConfigPair COMMAND_PLAYERONLY = new ConfigPair("command.playerOnly", "%prefix% <red>This command can only be executed by players.");
     public static ConfigPair COMMAND_NO_PERMISSION = new ConfigPair("command.noPermission", "%prefix% <gray>You don't have the permission to execute this command.");
     public static ConfigPair COMMAND_INVALID_SEASON_INPUT = new ConfigPair("command.invalidSeasonInput", "%prefix% <red>Invalid season!");
     public static ConfigPair COMMAND_INVALID_NUMBER_INPUT = new ConfigPair("command.invalidNumberInput", "%prefix% <red>Invalid number!");
@@ -34,6 +36,8 @@ public final class MessagePathProvider {
     public static ConfigPair COMMAND_UPDATE_SUCCESS = new ConfigPair("command.update.success", "%prefix% <green>Update was successful. Restart server to use the update.");
     public static ConfigPair COMMAND_UPDATE_FAILURE = new ConfigPair("command.update.failure", "%prefix% <red>Update failed. See console for the detailed error.");
     public static ConfigPair COMMAND_RELOAD_WARNINGS = new ConfigPair("command.reloadWarnings", "%prefix% <red>The following warnings and erros occured when reloading:");
+    public static ConfigPair COMMAND_SPAWNBOSS_UNKNOWBOSS = new ConfigPair("command.spawnBoss.unknownBoss", "%prefix% <red>Unknown boss!");
+    public static ConfigPair COMMAND_SPAWNBOSS_SUCCESS = new ConfigPair("command.spawnBoss.success", "%prefix% <green>You spawned the %boss% boss.");
 
     @ConfigExclude(excludeComments = false)
     public static ConfigPair COMMENT_PREFIX = new ConfigPair("prefix",

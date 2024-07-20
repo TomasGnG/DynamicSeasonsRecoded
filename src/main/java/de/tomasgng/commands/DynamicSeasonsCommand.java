@@ -6,10 +6,12 @@ import de.tomasgng.utils.PluginUpdater;
 import de.tomasgng.utils.config.dataproviders.ConfigDataProvider;
 import de.tomasgng.utils.config.dataproviders.MessageDataProvider;
 import de.tomasgng.utils.enums.SeasonType;
+import de.tomasgng.utils.features.BossSpawningFeature;
 import de.tomasgng.utils.season.SeasonManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -62,6 +64,9 @@ public class DynamicSeasonsCommand extends Command {
         if(checkSetRemainingTime())
             return false;
 
+        if(checkSpawnBoss())
+            return false;
+
         sender.sendMessage(messageDataProvider.getCommandUsage());
         return false;
     }
@@ -109,9 +114,7 @@ public class DynamicSeasonsCommand extends Command {
         if(!arg0.equalsIgnoreCase("setseason"))
             return false;
 
-        SeasonType seasonType = Arrays.stream(SeasonType.values()).filter(x -> x.name().equalsIgnoreCase(newSeason))
-                .findFirst()
-                .orElse(null);
+        SeasonType seasonType = getSeasonType(newSeason);
 
         if(seasonType == null) {
             sender.sendMessage(messageDataProvider.getCommandInvalidSeasonInput());
@@ -149,6 +152,48 @@ public class DynamicSeasonsCommand extends Command {
         return true;
     }
 
+    private boolean checkSpawnBoss() {
+        if(args.length != 3)
+            return false;
+
+        String subcommand = args[0];
+        String season = args[1];
+        String bossName = args[2];
+
+        if(!subcommand.equalsIgnoreCase("spawnboss"))
+            return false;
+
+        if(!(sender instanceof Player player)) {
+            sender.sendMessage(messageDataProvider.getCommandPlayerOnly());
+            return true;
+        }
+
+        SeasonType seasonType = getSeasonType(season);
+
+        if(seasonType == null) {
+            player.sendMessage(messageDataProvider.getCommandInvalidSeasonInput());
+            return true;
+        }
+
+        BossSpawningFeature feature = seasonManager.getSeason(seasonType).getBossSpawningFeature();
+        List<String> bossList = feature.getAllEntryNames();
+
+        if(!bossList.contains(bossName)) {
+            player.sendMessage(messageDataProvider.getCommandSpawnBossUnknownBoss());
+            return true;
+        }
+
+        feature.spawnBoss(player, bossName);
+        player.sendMessage(messageDataProvider.getCommandSpawnBossSuccess(bossName));
+        return true;
+    }
+
+    private SeasonType getSeasonType(String str) {
+        return Arrays.stream(SeasonType.values()).filter(x -> x.name().equalsIgnoreCase(str.toUpperCase()))
+                     .findFirst()
+                     .orElse(null);
+    }
+
     // /cmd <1> <2> ..
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
@@ -156,16 +201,28 @@ public class DynamicSeasonsCommand extends Command {
             return List.of();
 
         if(args.length == 1)
-            return List.of("setseason", "setremainingtime", "reload", "update");
+            return List.of("setseason", "setremainingtime", "reload", "update", "spawnboss");
 
         if(args.length == 2) {
             String arg = args[0];
 
-            if(arg.equalsIgnoreCase("setseason"))
+            if(arg.equalsIgnoreCase("setseason") || arg.equalsIgnoreCase("spawnboss"))
                 return Arrays.stream(SeasonType.values()).map(Enum::name).toList();
 
             if(arg.equalsIgnoreCase("setremainingtime"))
                 sender.sendActionBar(Component.text(seasonManager.getRemainingTime()));
+        }
+
+        if(args.length == 3) {
+            String arg = args[0];
+            SeasonType season = getSeasonType(args[1]);
+
+            if(arg.equalsIgnoreCase("spawnboss")) {
+                if (season == null)
+                    return List.of();
+
+                return seasonManager.getSeason(season).getBossSpawningFeature().getAllEntryNames();
+            }
         }
 
         return List.of();

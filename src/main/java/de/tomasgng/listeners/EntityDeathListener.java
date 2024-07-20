@@ -9,6 +9,6 @@ public class EntityDeathListener implements Listener {
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
-        DynamicSeasons.getInstance().getSeasonManager().getCurrentSeason().handleLootDrops(event);
+        DynamicSeasons.getInstance().getSeasonManager().getCurrentSeason().handleEntityDeathEvent(event);
     }
 }

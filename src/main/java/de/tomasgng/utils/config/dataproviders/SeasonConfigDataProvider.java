@@ -1,6 +1,7 @@
 package de.tomasgng.utils.config.dataproviders;
 
 import de.tomasgng.DynamicSeasons;
+import de.tomasgng.utils.ItemBuilder;
 import de.tomasgng.utils.PluginLogger;
 import de.tomasgng.utils.config.SeasonConfigManager;
 import de.tomasgng.utils.config.utils.ConfigPair;
@@ -13,8 +14,6 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -24,28 +23,28 @@ import static de.tomasgng.utils.config.pathproviders.SeasonConfigPathProvider.*;
 
 public class SeasonConfigDataProvider {
 
-    private SeasonConfigManager configManager = getConfigManager();
+    private SeasonConfigManager config = getConfigManager();
     private final PluginLogger logger = PluginLogger.getInstance();
 
     public WeatherFeature getWeatherFeature() {
-        boolean isEnabled = configManager.getBooleanValue(WEATHER_ENABLED);
-        boolean clearWeatherEnabled = configManager.getBooleanValue(WEATHER_TYPE_CLEAR_ENABLED);
-        boolean stormWeatherEnabled = configManager.getBooleanValue(WEATHER_TYPE_STORM_ENABLED);
-        boolean thunderWeatherEnabled = configManager.getBooleanValue(WEATHER_TYPE_THUNDER_ENABLED);
+        boolean isEnabled = config.getBooleanValue(WEATHER_ENABLED);
+        boolean clearWeatherEnabled = config.getBooleanValue(WEATHER_TYPE_CLEAR_ENABLED);
+        boolean stormWeatherEnabled = config.getBooleanValue(WEATHER_TYPE_STORM_ENABLED);
+        boolean thunderWeatherEnabled = config.getBooleanValue(WEATHER_TYPE_THUNDER_ENABLED);
 
         return new WeatherFeature(isEnabled, clearWeatherEnabled, stormWeatherEnabled, thunderWeatherEnabled);
     }
 
     public RandomTickSpeedFeature getRandomTickSpeedFeature() {
-        boolean isEnabled = configManager.getBooleanValue(RANDOM_TICK_SPEED_ENABLED);
-        int randomTickSpeed = configManager.getIntegerValue(RANDOM_TICK_SPEED);
+        boolean isEnabled = config.getBooleanValue(RANDOM_TICK_SPEED_ENABLED);
+        int randomTickSpeed = config.getIntegerValue(RANDOM_TICK_SPEED);
 
         return new RandomTickSpeedFeature(isEnabled, randomTickSpeed);
     }
 
     public XPBonusFeature getXPBonusFeature() {
-        boolean isEnabled = configManager.getBooleanValue(XP_BONUS_ENABLED);
-        int bonus = configManager.getIntegerValue(XP_BONUS);
+        boolean isEnabled = config.getBooleanValue(XP_BONUS_ENABLED);
+        int bonus = config.getIntegerValue(XP_BONUS);
 
         if(bonus < 0) {
             logger.warn("XP bonus value cannot be negative! Feature will be disabled. Path in config: " + XP_BONUS.getPath());
@@ -56,8 +55,8 @@ public class SeasonConfigDataProvider {
     }
 
     public AnimalSpawningFeature getAnimalSpawningFeature() {
-        boolean isEnabled = configManager.getBooleanValue(ANIMAL_SPAWNING_ENABLED);
-        Map<String, Object> rawEntries = configManager.getValuesFromBase(ANIMAL_SPAWNING_ENTRIES_BASE);
+        boolean isEnabled = config.getBooleanValue(ANIMAL_SPAWNING_ENABLED);
+        Map<String, Object> rawEntries = config.getValuesFromBase(ANIMAL_SPAWNING_ENTRIES_BASE);
         Set<AnimalSpawningEntry> parsedEntries = new HashSet<>();
 
         rawEntries.forEach((key, value) -> {
@@ -87,14 +86,13 @@ public class SeasonConfigDataProvider {
     }
 
     public CreatureAttributesFeature getCreatureAttributesFeature() {
-        boolean isEnabled = configManager.getBooleanValue(CREATURE_ATTRIBUTES_ENABLED);
-        Map<String, Object> rawEntries = configManager.getValuesFromBase(CREATURE_ATTRIBUTES_ENTRIES_BASE);
+        boolean isEnabled = config.getBooleanValue(CREATURE_ATTRIBUTES_ENABLED);
+        Map<String, Object> rawEntries = config.getValuesFromBase(CREATURE_ATTRIBUTES_ENTRIES_BASE);
         Set<CreatureAttributesEntry> parsedEntries = new HashSet<>();
 
         rawEntries.forEach((key, value) -> {
             String path = CREATURE_ATTRIBUTES_ENTRIES_BASE.getPath() + "." + key;
-            Map<Attribute, Double> attributes = new HashMap<>();
-            Map<String, Object> rawAttributes = configManager.getValuesFromBase(new ConfigPair(CREATURE_ATTRIBUTES_ENTRIES_BASE.getPath() + "." + key, null));
+            Map<String, Object> rawAttributes = config.getValuesFromBase(new ConfigPair(CREATURE_ATTRIBUTES_ENTRIES_BASE.getPath() + "." + key, null));
 
             EntityType creature;
 
@@ -105,23 +103,7 @@ public class SeasonConfigDataProvider {
                 return;
             }
 
-            rawAttributes.forEach((rawAttribute, rawAttributeValue) -> {
-                Attribute attribute;
-                double attributeValue;
-
-                try {
-                    attribute = Attribute.valueOf(rawAttribute.toUpperCase());
-                    attributeValue = Double.parseDouble(rawAttributeValue.toString());
-                } catch (NumberFormatException e) {
-                    logger.warn(rawAttributeValue + " is not a valid attribute value. Must be a (decimal) number. Path in config: " + path);
-                    return;
-                } catch (IllegalArgumentException e) {
-                    logger.warn(rawAttribute + " is not a valid attribute! Path in config: " + path);
-                    return;
-                }
-
-                attributes.put(attribute, attributeValue);
-            });
+            Map<Attribute, Double> attributes = parseAttributes(path, rawAttributes);
 
             parsedEntries.add(new CreatureAttributesEntry(creature, attributes));
         });
@@ -130,8 +112,8 @@ public class SeasonConfigDataProvider {
     }
 
     public AnimalGrowingFeature getAnimalGrowingFeature() {
-        boolean isEnabled = configManager.getBooleanValue(ANIMAL_GROWING_ENABLED);
-        Map<String, Object> rawEntries = configManager.getValuesFromBase(ANIMAL_GROWING_ENTRIES_BASE);
+        boolean isEnabled = config.getBooleanValue(ANIMAL_GROWING_ENABLED);
+        Map<String, Object> rawEntries = config.getValuesFromBase(ANIMAL_GROWING_ENTRIES_BASE);
         Set<AnimalGrowingEntry> parsedEntries = new HashSet<>();
 
         rawEntries.forEach((key, value) -> {
@@ -161,8 +143,8 @@ public class SeasonConfigDataProvider {
     }
 
     public PreventCropGrowingFeature getPreventCropGrowingFeature() {
-        boolean isEnabled = configManager.getBooleanValue(PREVENT_CROP_GROWING_ENABLED);
-        List<String> rawCrops = configManager.getStringListValue(PREVENT_CROP_GROWING_ENTRIES);
+        boolean isEnabled = config.getBooleanValue(PREVENT_CROP_GROWING_ENABLED);
+        List<String> rawCrops = config.getStringListValue(PREVENT_CROP_GROWING_ENTRIES);
         List<String> parsedCrops = new ArrayList<>();
 
         for (String rawCrop : rawCrops) {
@@ -181,8 +163,8 @@ public class SeasonConfigDataProvider {
     }
 
     public PotionEffectsFeature getPotionEffectsFeature() {
-        boolean isEnabled = configManager.getBooleanValue(POTION_EFFECTS_ENABLED);
-        Map<String, Object> rawEntries = configManager.getValuesFromBase(POTION_EFFECTS_ENTRIES_BASE);
+        boolean isEnabled = config.getBooleanValue(POTION_EFFECTS_ENABLED);
+        Map<String, Object> rawEntries = config.getValuesFromBase(POTION_EFFECTS_ENTRIES_BASE);
         List<PotionEffect> parsedEntries = new ArrayList<>();
 
         rawEntries.forEach((key, value) -> {
@@ -208,14 +190,13 @@ public class SeasonConfigDataProvider {
     }
 
     public LootDropsFeature getLootDropsFeature() {
-        boolean isEnabled = configManager.getBooleanValue(LOOT_DROPS_ENABLED);
-        Set<String> rawEntityTypes = configManager.getKeysFromBase(LOOT_DROPS_ENTRIES_BASE);
+        boolean isEnabled = config.getBooleanValue(LOOT_DROPS_ENABLED);
+        Set<String> rawEntityTypes = config.getKeysFromBase(LOOT_DROPS_ENTRIES_BASE);
         Map<EntityType, List<LootDropsEntry>> parsedEntries = new HashMap<>();
 
         for (String rawEntityType : rawEntityTypes) {
             String entityPath = LOOT_DROPS_ENTRIES_BASE.getPath() + "." + rawEntityType;
 
-            List<LootDropsEntry> lootDropsEntries = new ArrayList<>();
             EntityType entityType;
 
             try {
@@ -225,62 +206,8 @@ public class SeasonConfigDataProvider {
                 continue;
             }
 
-            var rawMaterialTypes = configManager.getKeysFromBase(new ConfigPair(entityPath));
-
-            for (String rawMaterialType : rawMaterialTypes) {
-                String materialPath = entityPath + "." + rawMaterialType;
-
-                Material material;
-                try {
-                    material = Material.valueOf(rawMaterialType.toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    logger.warn(rawMaterialType + " is not a valid material. Path in config: " + materialPath);
-                    continue;
-                }
-
-                Component displayname = configManager.getComponentValue(new ConfigPair(materialPath + "." + LOOT_DROPS_ENTRIES_DISPLAYNAME_BASE.getPath()));
-                List<Component> loreList = parseListToComponent(configManager.getStringListValue(new ConfigPair(materialPath + "." + LOOT_DROPS_ENTRIES_LORE_BASE.getPath(), new ArrayList<>())));
-                int amount = configManager.getIntegerValue(new ConfigPair(materialPath + "." + LOOT_DROPS_ENTRIES_AMOUNT_BASE.getPath(), 1));
-                int dropChance = configManager.getIntegerValue(new ConfigPair(materialPath + "." + LOOT_DROPS_ENTRIES_DROPCHANCE_BASE.getPath(), 0));
-                Map<String, Object> rawEnchantments = configManager.getValuesFromBase(new ConfigPair(materialPath + "." + LOOT_DROPS_ENTRIES_ENCHANTMENTS_BASE.getPath()));
-                Map<Enchantment, Integer> parsedEnchantments = new HashMap<>();
-
-                rawEnchantments.forEach((key, value) -> {
-                    String enchantmentPath = materialPath + "." + LOOT_DROPS_ENTRIES_ENCHANTMENTS_BASE.getPath() + "." + key;
-                    try {
-                        Enchantment enchantment = Registry.ENCHANTMENT.get(NamespacedKey.fromString(key.toLowerCase()));
-
-                        if(enchantment == null) {
-                            logger.warn(key + " is not a valid enchantment entityType. Path in config: " + enchantmentPath);
-                            return;
-                        }
-
-                        int level = Integer.parseInt(value.toString());
-
-                        parsedEnchantments.put(enchantment, level);
-                    } catch (NumberFormatException e) {
-                        logger.warn(key + " is not a valid enchantment value. Path in config: " + enchantmentPath);
-                    }
-                });
-
-                ItemStack itemStack = new ItemStack(material);
-                itemStack.setAmount(amount);
-
-                ItemMeta itemMeta = itemStack.getItemMeta();
-
-                if(displayname != null)
-                    itemMeta.displayName(displayname.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE));
-
-                if(!loreList.isEmpty())
-                    itemMeta.lore(loreList);
-
-                if(!parsedEnchantments.isEmpty())
-                    parsedEnchantments.forEach((enchantment, level) -> itemMeta.addEnchant(enchantment, level, true));
-
-                itemStack.setItemMeta(itemMeta);
-
-                lootDropsEntries.add(new LootDropsEntry(dropChance, itemStack));
-            }
+            var itemNameEntries = config.getKeysFromBase(new ConfigPair(entityPath));
+            List<LootDropsEntry> lootDropsEntries = parseLootDropsEntries(entityPath, itemNameEntries);
 
             parsedEntries.put(entityType, lootDropsEntries);
         }
@@ -289,12 +216,12 @@ public class SeasonConfigDataProvider {
     }
 
     public ParticlesFeature getParticlesFeature() {
-        boolean isEnabled = configManager.getBooleanValue(PARTICLES_ENABLED);
-        double offsetX = configManager.getDoubleValue(PARTICLES_X_OFFSET);
-        double offsetY = configManager.getDoubleValue(PARTICLES_Y_OFFSET);
-        double offsetZ = configManager.getDoubleValue(PARTICLES_Z_OFFSET);
-        int spawnTime = configManager.getIntegerValue(PARTICLES_SPAWNTIME);
-        double particleSpeed = configManager.getDoubleValue(PARTICLES_SPEED);
+        boolean isEnabled = config.getBooleanValue(PARTICLES_ENABLED);
+        double offsetX = config.getDoubleValue(PARTICLES_X_OFFSET);
+        double offsetY = config.getDoubleValue(PARTICLES_Y_OFFSET);
+        double offsetZ = config.getDoubleValue(PARTICLES_Z_OFFSET);
+        int spawnTime = config.getIntegerValue(PARTICLES_SPAWNTIME);
+        double particleSpeed = config.getDoubleValue(PARTICLES_SPEED);
 
         if(spawnTime <= 0) {
             logger.warn(spawnTime + " is not a valid spawn time. Value must be greater than 0. Set spawn time to " + PARTICLES_SPAWNTIME.getIntegerValue() + ". Path in config: " + PARTICLES_SPAWNTIME.getPath());
@@ -306,7 +233,7 @@ public class SeasonConfigDataProvider {
             particleSpeed = PARTICLES_SPEED.getDoubleValue();
         }
 
-        Set<String> rawParticleTypes = configManager.getKeysFromBase(PARTICLES_ENTRIES_BASE);
+        Set<String> rawParticleTypes = config.getKeysFromBase(PARTICLES_ENTRIES_BASE);
         List<ParticlesEntry> parsedEntries = new ArrayList<>();
 
         for (String rawParticleType : rawParticleTypes) {
@@ -321,8 +248,8 @@ public class SeasonConfigDataProvider {
                 continue;
             }
 
-            int minSpawnAmount = configManager.getIntegerValue(new ConfigPair(particlePath + "." + PARTICLES_ENTRIES_MINSPAWNAMOUNT_BASE.getPath(), 10));
-            int maxSpawnAmount = configManager.getIntegerValue(new ConfigPair(particlePath + "." + PARTICLES_ENTRIES_MAXSPAWNAMOUNT_BASE.getPath(), 40));
+            int minSpawnAmount = config.getIntegerValue(new ConfigPair(particlePath + "." + PARTICLES_ENTRIES_MINSPAWNAMOUNT_BASE.getPath(), 10));
+            int maxSpawnAmount = config.getIntegerValue(new ConfigPair(particlePath + "." + PARTICLES_ENTRIES_MAXSPAWNAMOUNT_BASE.getPath(), 40));
 
             if(minSpawnAmount > maxSpawnAmount) {
                 logger.warn("minSpawnAmount can't be greater than maxSpawnAmount! Path in config: " + particlePath + "." + PARTICLES_ENTRIES_MINSPAWNAMOUNT_BASE.getPath());
@@ -340,6 +267,111 @@ public class SeasonConfigDataProvider {
         return new ParticlesFeature(isEnabled, spawnTime, parsedEntries);
     }
 
+    public BossSpawningFeature getBossSpawningFeature() {
+        boolean isEnabled = config.getBooleanValue(BOSS_SPAWNING_ENABLED);
+        List<BossSpawningEntry> parsedEntries = new ArrayList<>();
+        Set<String> rawEntries = config.getKeysFromBase(BOSS_SPAWNING_ENTRIES_BASE);
+
+        for (String bossName : rawEntries) {
+            String bossNamePath = BOSS_SPAWNING_ENTRIES_BASE.getPath() + "." + bossName;
+
+            EntityType mobType;
+            String rawMobType = config.getStringValue(new ConfigPair(bossNamePath + "." + BOSS_SPAWNING_ENTRIES_MOBTYPE_BASE.getPath()));
+
+            try {
+                mobType = EntityType.valueOf(rawMobType.toUpperCase());
+            } catch (IllegalArgumentException ignore) {
+                logger.warn(rawMobType + " is not a valid mob type. Path in config: " + bossNamePath + "." + BOSS_SPAWNING_ENTRIES_MOBTYPE_BASE.getPath());
+                continue;
+            }
+
+            boolean enabled = config.getBooleanValue(new ConfigPair(bossNamePath + "." + BOSS_SPAWNING_ENTRIES_ENABLED_BASE.getPath()));
+            Component displayname = config.getComponentValue(new ConfigPair(bossNamePath + "." + BOSS_SPAWNING_ENTRIES_DISPLAYNAME_BASE.getPath()));
+            int spawnChance = config.getIntegerValue(new ConfigPair(bossNamePath + "." + BOSS_SPAWNING_ENTRIES_SPAWNCHANCE_BASE.getPath(), 0));
+
+            boolean itemInHandEnabled = config.getBooleanValue(new ConfigPair(bossNamePath + "." + BOSS_SPAWNING_ENTRIES_ITEMINHAND_ENABLED_BASE.getPath(), false));
+            String itemInHandMaterial = config.getStringValue(new ConfigPair(bossNamePath + "." + BOSS_SPAWNING_ENTRIES_ITEMINHAND_MATERIAL_BASE.getPath())).toUpperCase();
+            Component itemInHandDisplayname = config.getComponentValue(new ConfigPair(bossNamePath + "." + BOSS_SPAWNING_ENTRIES_ITEMINHAND_DISPLAYNAME_BASE.getPath()));
+            int itemInHandDropChance = config.getIntegerValue(new ConfigPair(bossNamePath + "." + BOSS_SPAWNING_ENTRIES_ITEMINHAND_DROPCHANCE_BASE.getPath(), 0));
+            List<Component> itemInHandLore = parseListToComponent(config.getStringListValue(new ConfigPair(bossNamePath + "." + BOSS_SPAWNING_ENTRIES_ITEMINHAND_LORE_BASE.getPath())));
+            Map<Enchantment, Integer> itemInHandEnchantments = parseEnchantments(bossNamePath, config.getValuesFromBase(new ConfigPair(bossNamePath + "." + BOSS_SPAWNING_ENTRIES_ITEMINHAND_ENCHANTMENTS_BASE.getPath())));
+            BossSpawningItemInHandEntry itemInHandEntry = null;
+
+            Map<String, Object> rawAttributes = config.getValuesFromBase(new ConfigPair(bossNamePath + "." + BOSS_SPAWNING_ENTRIES_ATTRIBUTES_BASE.getPath()));
+            Map<Attribute, Double> parsedAttributes = parseAttributes(bossNamePath + "." + BOSS_SPAWNING_ENTRIES_ATTRIBUTES_BASE.getPath(), rawAttributes);
+
+            boolean lootDropsEnabled = config.getBooleanValue(new ConfigPair(bossNamePath + "." + BOSS_SPAWNING_ENTRIES_LOOTDROPS_ENABLED_BASE.getPath()));
+            Set<String> lootDropsItemNames = config.getKeysFromBase(new ConfigPair(bossNamePath + "." + BOSS_SPAWNING_ENTRIES_LOOTDROPS_ENTRIES_BASE.getPath()));
+            List<LootDropsEntry> lootDropsParsedEntries = parseLootDropsEntries(bossNamePath + "." + BOSS_SPAWNING_ENTRIES_LOOTDROPS_ENTRIES_BASE.getPath(), lootDropsItemNames);
+
+            if(Material.getMaterial(itemInHandMaterial) != null) {
+                ItemBuilder itemBuilder = new ItemBuilder(Material.getMaterial(itemInHandMaterial));
+
+                if(itemInHandDisplayname != null)
+                    itemBuilder = itemBuilder.displayname(itemInHandDisplayname);
+
+                itemBuilder = itemBuilder.lore(itemInHandLore)
+                                         .addEnchantments(itemInHandEnchantments);
+
+                itemInHandEntry = new BossSpawningItemInHandEntry(itemInHandEnabled, itemBuilder.build(), itemInHandDropChance);
+            } else
+                logger.warn(itemInHandMaterial + " is not a valid material. Path in config: " + bossNamePath + "." + BOSS_SPAWNING_ENTRIES_ITEMINHAND_MATERIAL_BASE.getPath());
+
+            BossSpawningEntry entry = new BossSpawningEntry(bossName, enabled, mobType, displayname, spawnChance, itemInHandEntry, parsedAttributes, lootDropsEnabled, lootDropsParsedEntries);
+            parsedEntries.add(entry);
+        }
+
+        return new BossSpawningFeature(isEnabled, parsedEntries);
+    }
+
+    private Map<Attribute, Double> parseAttributes(String base, Map<String, Object> rawAttributes) {
+        Map<Attribute, Double> attributes = new HashMap<>();
+
+        rawAttributes.forEach((rawAttribute, rawAttributeValue) -> {
+            Attribute attribute;
+            double attributeValue;
+
+            try {
+                attribute = Attribute.valueOf(rawAttribute.toUpperCase());
+                attributeValue = Double.parseDouble(rawAttributeValue.toString());
+            } catch (NumberFormatException e) {
+                logger.warn(rawAttributeValue + " is not a valid attribute value. Must be a (decimal) number. Path in config: " + base);
+                return;
+            } catch (IllegalArgumentException e) {
+                logger.warn(rawAttribute + " is not a valid attribute! Path in config: " + base);
+                return;
+            }
+
+            attributes.put(attribute, attributeValue);
+        });
+
+        return attributes;
+    }
+
+    private Map<Enchantment, Integer> parseEnchantments(String currentPath, Map<String, Object> rawEnchantments) {
+        HashMap<Enchantment, Integer> parsedEnchantments = new HashMap<>();
+
+        rawEnchantments.forEach((key, value) -> {
+            String enchantmentPath = currentPath + "." + LOOT_DROPS_ENTRIES_ENCHANTMENTS_BASE.getPath() + "." + key;
+            try {
+                Enchantment enchantment = Registry.ENCHANTMENT.get(NamespacedKey.fromString(key.toLowerCase()));
+
+                if(enchantment == null) {
+                    logger.warn(key + " is not a valid enchantment entityType. Path in config: " + enchantmentPath);
+                    return;
+                }
+
+                int level = Integer.parseInt(value.toString());
+
+                parsedEnchantments.put(enchantment, level);
+            } catch (NumberFormatException e) {
+                logger.warn(key + " is not a valid enchantment value. Path in config: " + enchantmentPath);
+            }
+        });
+
+        return parsedEnchantments;
+    }
+
     private List<Component> parseListToComponent(List<String> list) {
         final MiniMessage mm = MiniMessage.miniMessage();
 
@@ -350,12 +382,53 @@ public class SeasonConfigDataProvider {
                 .toList();
     }
 
-    private SeasonConfigManager getConfigManager() {
-        if (configManager == null) {
-            configManager = DynamicSeasons.getInstance().getSeasonConfigManager();
-            return configManager;
+    private List<LootDropsEntry> parseLootDropsEntries(String base, Set<String> itemNameEntries) {
+        List<LootDropsEntry> lootDropsEntries = new ArrayList<>();
+
+        for (String itemName : itemNameEntries) {
+            String itemNamePath = base + "." + itemName;
+
+            Material material;
+            String rawMaterial = config.getStringValue(new ConfigPair(itemNamePath + "." + LOOT_DROPS_ENTRIES_MATERIAL_BASE.getPath()));
+
+            try {
+                material = Material.valueOf(rawMaterial.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                logger.warn(itemName + " is not a valid material. Path in config: " + itemNamePath);
+                continue;
+            }
+
+            Component displayname = config.getComponentValue(new ConfigPair(itemNamePath + "." + LOOT_DROPS_ENTRIES_DISPLAYNAME_BASE.getPath()));
+            List<Component> loreList = parseListToComponent(config.getStringListValue(new ConfigPair(itemNamePath + "." + LOOT_DROPS_ENTRIES_LORE_BASE.getPath(), new ArrayList<>())));
+            int amount = config.getIntegerValue(new ConfigPair(itemNamePath + "." + LOOT_DROPS_ENTRIES_AMOUNT_BASE.getPath(), 1));
+            int dropChance = config.getIntegerValue(new ConfigPair(itemNamePath + "." + LOOT_DROPS_ENTRIES_DROPCHANCE_BASE.getPath(), 0));
+            Map<String, Object> rawEnchantments = config.getValuesFromBase(new ConfigPair(itemNamePath + "." + LOOT_DROPS_ENTRIES_ENCHANTMENTS_BASE.getPath()));
+            Map<Enchantment, Integer> parsedEnchantments = parseEnchantments(itemNamePath, rawEnchantments);
+
+            ItemBuilder itemBuilder = new ItemBuilder(material);
+            itemBuilder = itemBuilder.setAmount(amount);
+
+            if(displayname != null)
+                itemBuilder = itemBuilder.displayname(displayname);
+
+            if(!loreList.isEmpty())
+                itemBuilder = itemBuilder.lore(loreList);
+
+            if(!parsedEnchantments.isEmpty())
+                itemBuilder = itemBuilder.addEnchantments(parsedEnchantments);
+
+            lootDropsEntries.add(new LootDropsEntry(dropChance, itemBuilder.build()));
         }
 
-        return configManager;
+        return lootDropsEntries;
+    }
+
+    private SeasonConfigManager getConfigManager() {
+        if (config == null) {
+            config = DynamicSeasons.getInstance().getSeasonConfigManager();
+            return config;
+        }
+
+        return config;
     }
 }

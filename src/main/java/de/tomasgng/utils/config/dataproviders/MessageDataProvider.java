@@ -61,6 +61,10 @@ public class MessageDataProvider {
         return usageMsg.get();
     }
 
+    public Component getCommandPlayerOnly() {
+        return replaceAllPlaceholders(manager.getComponentValue(COMMAND_PLAYERONLY));
+    }
+
     public Component getCommandNoPermission() {
         return replaceAllPlaceholders(manager.getComponentValue(COMMAND_NO_PERMISSION));
     }
@@ -103,6 +107,17 @@ public class MessageDataProvider {
 
     public Component getCommandReloadWarnings() {
         return replaceAllPlaceholders(manager.getComponentValue(COMMAND_RELOAD_WARNINGS));
+    }
+
+    public Component getCommandSpawnBossUnknownBoss() {
+        return replaceAllPlaceholders(manager.getComponentValue(COMMAND_SPAWNBOSS_UNKNOWBOSS));
+    }
+
+    public Component getCommandSpawnBossSuccess(String bossName) {
+        Component msg = manager.getComponentValue(COMMAND_SPAWNBOSS_SUCCESS);
+        String replacedBossPlaceholder = mm.serialize(msg).replaceAll("%boss%", bossName);
+        msg = mm.deserialize(replacedBossPlaceholder);
+        return replaceAllPlaceholders(msg);
     }
 
     private Component replaceAllPlaceholders(Component component) {
