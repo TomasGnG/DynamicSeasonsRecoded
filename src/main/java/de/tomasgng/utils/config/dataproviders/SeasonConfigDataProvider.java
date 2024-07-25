@@ -192,27 +192,41 @@ public class SeasonConfigDataProvider {
     public LootDropsFeature getLootDropsFeature() {
         boolean isEnabled = config.getBooleanValue(LOOT_DROPS_ENABLED);
         Set<String> rawEntityTypes = config.getKeysFromBase(LOOT_DROPS_ENTRIES_BASE);
-        Map<EntityType, List<LootDropsEntry>> parsedEntries = new HashMap<>();
+        Map<EntityType, List<LootDropsEntry>> parsedEntityEntries = new HashMap<>();
+        Map<Material, List<LootDropsEntry>> parsedBlockEntries = new HashMap<>();
 
-        for (String rawEntityType : rawEntityTypes) {
-            String entityPath = LOOT_DROPS_ENTRIES_BASE.getPath() + "." + rawEntityType;
+        for (String rawType : rawEntityTypes) {
+            String typePath = LOOT_DROPS_ENTRIES_BASE.getPath() + "." + rawType;
 
-            EntityType entityType;
+            EntityType entityType = null;
+            Material blockType = null;
 
             try {
-                entityType = EntityType.valueOf(rawEntityType.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                logger.warn(rawEntityType + " is not a valid entity entityType. Path in config: " + entityPath);
+                entityType = EntityType.valueOf(rawType.toUpperCase());
+            } catch (IllegalArgumentException ignore) {}
+
+            try {
+                blockType = Material.valueOf(rawType.toUpperCase());
+
+                if(!blockType.isBlock())
+                    blockType = null;
+            } catch (IllegalArgumentException ignore) {}
+
+            if(entityType == null && blockType == null) {
+                logger.warn(rawType + " is neither a block nor a creature. Path in config: " + typePath);
                 continue;
             }
 
-            var itemNameEntries = config.getKeysFromBase(new ConfigPair(entityPath));
-            List<LootDropsEntry> lootDropsEntries = parseLootDropsEntries(entityPath, itemNameEntries);
+            var itemNameEntries = config.getKeysFromBase(new ConfigPair(typePath));
+            List<LootDropsEntry> lootDropsEntries = parseLootDropsEntries(typePath, itemNameEntries);
 
-            parsedEntries.put(entityType, lootDropsEntries);
+            if(entityType != null)
+                parsedEntityEntries.put(entityType, lootDropsEntries);
+            else
+                parsedBlockEntries.put(blockType, lootDropsEntries);
         }
 
-        return new LootDropsFeature(isEnabled, parsedEntries);
+        return new LootDropsFeature(isEnabled, parsedEntityEntries, parsedBlockEntries);
     }
 
     public ParticlesFeature getParticlesFeature() {

@@ -9,12 +9,11 @@ import de.tomasgng.utils.enums.SeasonType;
 import de.tomasgng.utils.features.*;
 import de.tomasgng.utils.features.utils.*;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.Event;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -23,6 +22,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.world.StructureGrowEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitTask;
@@ -355,6 +355,33 @@ public class Season {
         }
     }
 
+    public void handleLootDrops(BlockBreakEvent e) {
+        if(!lootDropsFeature.isEnabled())
+            return;
+
+        Material material = e.getBlock().getType();
+        ItemStack tool = e.getPlayer().getInventory().getItemInMainHand();
+        World world = e.getBlock().getWorld();
+        Location location = e.getBlock().getLocation();
+
+        if(!material.createBlockData().isPreferredTool(tool))
+            return;
+
+        List<LootDropsEntry> drops = lootDropsFeature.getDrops(material);
+
+        if(drops == null)
+            return;
+
+        for (LootDropsEntry entry : drops) {
+            int randomSpawnChance = random.nextInt(1, 101);
+
+            if(randomSpawnChance > entry.dropChance())
+                continue;
+
+            world.dropItemNaturally(location, entry.itemStack());
+        }
+    }
+
     public void handleParticles() {
         if(particlesTimer != null)
             particlesTimer.cancel();
@@ -378,7 +405,8 @@ public class Season {
     }
 
     public void handleEntityDamageEvent(EntityDamageEvent e) {
-        LivingEntity entity = (LivingEntity) e.getEntity();
+        if(!(e.getEntity() instanceof LivingEntity entity))
+            return;
 
         if(bossSpawningFeature.isLivingBoss(entity))
             bossSpawningFeature.getLivingBossEntry(entity).applyDisplayname();

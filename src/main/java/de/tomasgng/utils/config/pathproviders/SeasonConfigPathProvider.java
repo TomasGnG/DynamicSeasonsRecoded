@@ -28,15 +28,15 @@ public final class SeasonConfigPathProvider {
 
     public static ConfigPair ANIMAL_SPAWNING_ENABLED = new ConfigPair("animalSpawning.enabled", true);
     @ConfigExclude
-    public static ConfigPair ANIMAL_SPAWNING_ENTRIES_BASE = new ConfigPair("animalSpawning.entries", null);
-    public static ConfigPair ANIMAL_SPAWNING_ENTRIES_EXAMPLE1 = new ConfigPair("animalSpawning.entries.cow", 75);
-    public static ConfigPair ANIMAL_SPAWNING_ENTRIES_EXAMPLE2 = new ConfigPair("animalSpawning.entries.chicken", 25);
+    public static ConfigPair ANIMAL_SPAWNING_ENTRIES_BASE = new ConfigPair("animalSpawning.entityEntries", null);
+    public static ConfigPair ANIMAL_SPAWNING_ENTRIES_EXAMPLE1 = new ConfigPair("animalSpawning.entityEntries.cow", 75);
+    public static ConfigPair ANIMAL_SPAWNING_ENTRIES_EXAMPLE2 = new ConfigPair("animalSpawning.entityEntries.chicken", 25);
 
     public static ConfigPair CREATURE_ATTRIBUTES_ENABLED = new ConfigPair("creatureAttributes.enabled", true);
     @ConfigExclude
-    public static ConfigPair CREATURE_ATTRIBUTES_ENTRIES_BASE = new ConfigPair("creatureAttributes.entries", true);
+    public static ConfigPair CREATURE_ATTRIBUTES_ENTRIES_BASE = new ConfigPair("creatureAttributes.entityEntries", true);
     public static ConfigPair CREATURE_ATTRIBUTES_ENTRIES_EXAMPLE_1_ATTRIBUTE = new ConfigPair(
-            "creatureAttributes.entries.zombie.generic_max_health",
+            "creatureAttributes.entityEntries.zombie.generic_max_health",
             40.0);
     @ConfigExclude(excludeComments = false)
     public static ConfigPair COMMENT_CREATURE_ATTRIBUTES = new ConfigPair("creatureAttributes",
@@ -46,17 +46,17 @@ public final class SeasonConfigPathProvider {
 
     public static ConfigPair ANIMAL_GROWING_ENABLED = new ConfigPair("animalGrowing.enabled", true);
     @ConfigExclude
-    public static ConfigPair ANIMAL_GROWING_ENTRIES_BASE = new ConfigPair("animalGrowing.entries", null);
-    public static ConfigPair ANIMAL_GROWING_ENTRIES_EXAMPLE1 = new ConfigPair("animalGrowing.entries.cow", 120);
-    public static ConfigPair ANIMAL_GROWING_ENTRIES_EXAMPLE2 = new ConfigPair("animalGrowing.entries.sheep", 120);
+    public static ConfigPair ANIMAL_GROWING_ENTRIES_BASE = new ConfigPair("animalGrowing.entityEntries", null);
+    public static ConfigPair ANIMAL_GROWING_ENTRIES_EXAMPLE1 = new ConfigPair("animalGrowing.entityEntries.cow", 120);
+    public static ConfigPair ANIMAL_GROWING_ENTRIES_EXAMPLE2 = new ConfigPair("animalGrowing.entityEntries.sheep", 120);
     @ConfigExclude(excludeComments = false)
-    public static ConfigPair COMMENT_ANIMAL_GROWING_ENTRIES_BASE = new ConfigPair("animalGrowing.entries",
+    public static ConfigPair COMMENT_ANIMAL_GROWING_ENTRIES_BASE = new ConfigPair("animalGrowing.entityEntries",
                                                                                   null,
                                                                                   "Growing time of babies in seconds",
                                                                                   "Default growing time is 24 minutes.");
 
     public static ConfigPair PREVENT_CROP_GROWING_ENABLED = new ConfigPair("preventCropGrowing.enabled", true);
-    public static ConfigPair PREVENT_CROP_GROWING_ENTRIES = new ConfigPair("preventCropGrowing.entries",
+    public static ConfigPair PREVENT_CROP_GROWING_ENTRIES = new ConfigPair("preventCropGrowing.entityEntries",
                                                                            List.of("wheat", "birch"));
     @ConfigExclude(excludeComments = false)
     public static ConfigPair COMMENT_PREVENT_CROP_GROWING = new ConfigPair("preventCropGrowing",
@@ -66,9 +66,9 @@ public final class SeasonConfigPathProvider {
 
     public static ConfigPair POTION_EFFECTS_ENABLED = new ConfigPair("potionEffects.enabled", true);
     @ConfigExclude
-    public static ConfigPair POTION_EFFECTS_ENTRIES_BASE = new ConfigPair("potionEffects.entries", null);
-    public static ConfigPair POTION_EFFECTS_ENTRIES_EXAMPLE1 = new ConfigPair("potionEffects.entries.regeneration", 1);
-    public static ConfigPair POTION_EFFECTS_ENTRIES_EXAMPLE2 = new ConfigPair("potionEffects.entries.speed", 1);
+    public static ConfigPair POTION_EFFECTS_ENTRIES_BASE = new ConfigPair("potionEffects.entityEntries", null);
+    public static ConfigPair POTION_EFFECTS_ENTRIES_EXAMPLE1 = new ConfigPair("potionEffects.entityEntries.regeneration", 1);
+    public static ConfigPair POTION_EFFECTS_ENTRIES_EXAMPLE2 = new ConfigPair("potionEffects.entityEntries.speed", 1);
     @ConfigExclude(excludeComments = false)
     public static ConfigPair COMMENT_POTION_EFFECTS = new ConfigPair("potionEffects",
                                                                      null,
@@ -78,7 +78,7 @@ public final class SeasonConfigPathProvider {
 
     public static ConfigPair LOOT_DROPS_ENABLED = new ConfigPair("lootDrops.enabled", true);
     @ConfigExclude
-    public static ConfigPair LOOT_DROPS_ENTRIES_BASE = new ConfigPair("lootDrops.entries");
+    public static ConfigPair LOOT_DROPS_ENTRIES_BASE = new ConfigPair("lootDrops.entityEntries");
     @ConfigExclude
     public static ConfigPair LOOT_DROPS_ENTRIES_MATERIAL_BASE = new ConfigPair("material");
     @ConfigExclude
@@ -92,37 +92,37 @@ public final class SeasonConfigPathProvider {
     @ConfigExclude
     public static ConfigPair LOOT_DROPS_ENTRIES_DROPCHANCE_BASE = new ConfigPair("dropChance");
     public static ConfigPair LOOT_DROPS_ENTRIES_EXAMPLE_MATERIAL = new ConfigPair(
-            "lootDrops.entries.zombie.ExampleSword.material",
+            "lootDrops.entityEntries.zombie.ExampleSword.material",
             "diamond_sword");
     public static ConfigPair LOOT_DROPS_ENTRIES_EXAMPLE_DISPLAYNAME = new ConfigPair(
-            "lootDrops.entries.zombie.ExampleSword.displayname",
+            "lootDrops.entityEntries.zombie.ExampleSword.displayname",
             "<yellow>Tomas' Legendary Sword");
     public static ConfigPair LOOT_DROPS_ENTRIES_EXAMPLE_LORE = new ConfigPair(
-            "lootDrops.entries.zombie.ExampleSword.lore",
+            "lootDrops.entityEntries.zombie.ExampleSword.lore",
             List.of("<gray>This sword", "<gray>is <red>dangerous</red>!"));
     public static ConfigPair LOOT_DROPS_ENTRIES_EXAMPLE_AMOUNT = new ConfigPair(
-            "lootDrops.entries.zombie.ExampleSword.amount",
+            "lootDrops.entityEntries.zombie.ExampleSword.amount",
             1);
     public static ConfigPair LOOT_DROPS_ENTRIES_EXAMPLE_DROPCHANCE = new ConfigPair(
-            "lootDrops.entries.zombie.ExampleSword.dropChance",
+            "lootDrops.entityEntries.zombie.ExampleSword.dropChance",
             10);
     public static ConfigPair LOOT_DROPS_ENTRIES_EXAMPLE_ENCHANTMENTS_1 = new ConfigPair(
-            "lootDrops.entries.zombie.ExampleSword.enchantments.sharpness",
+            "lootDrops.entityEntries.zombie.ExampleSword.enchantments.sharpness",
             3);
     public static ConfigPair LOOT_DROPS_ENTRIES_EXAMPLE_ENCHANTMENTS_2 = new ConfigPair(
-            "lootDrops.entries.zombie.ExampleSword.enchantments.unbreaking",
+            "lootDrops.entityEntries.zombie.ExampleSword.enchantments.unbreaking",
             5);
     @ConfigExclude(excludeComments = false)
     public static ConfigPair COMMENT_LOOT_DROPS = new ConfigPair("lootDrops",
                                                                  null,
-                                                                 "You can add infinite amount of items to an entitytype (as an example: zombie).",
+                                                                 "You can add infinite amount of items to an entitytype or to a block (as an example: zombie, diamond_ore, etc.).",
                                                                  "List of EntityTypes: https://jd.papermc.io/paper/1.20.6/org/bukkit/entity/EntityType.html#enum-constant-summary",
                                                                  "List of MaterialTypes: https://jd.papermc.io/paper/1.20.6/org/bukkit/Material.html#enum-constant-summary",
                                                                  "List of EnchantmentTypes: https://jd.papermc.io/paper/1.20.6/org/bukkit/enchantments/Enchantment.html#field-summary",
                                                                  "",
                                                                  "Format:",
-                                                                 "entity_type:",
-                                                                 "  material_type:",
+                                                                 "entity_type/block_type:",
+                                                                 "  SomeRandomName:",
                                                                  "    (options): (values)");
 
     public static ConfigPair PARTICLES_ENABLED = new ConfigPair("particles.enabled", true);
@@ -134,14 +134,14 @@ public final class SeasonConfigPathProvider {
                                                                   "Time in ticks (20 ticks = 1 second)");
     public static ConfigPair PARTICLES_SPEED = new ConfigPair("particles.speed", 0.0, "Speed of the particles");
     @ConfigExclude
-    public static ConfigPair PARTICLES_ENTRIES_BASE = new ConfigPair("particles.entries", null);
+    public static ConfigPair PARTICLES_ENTRIES_BASE = new ConfigPair("particles.entityEntries", null);
     @ConfigExclude
     public static ConfigPair PARTICLES_ENTRIES_MINSPAWNAMOUNT_BASE = new ConfigPair("minSpawnAmount", null);
     @ConfigExclude
     public static ConfigPair PARTICLES_ENTRIES_MAXSPAWNAMOUNT_BASE = new ConfigPair("maxSpawnAmount", null);
-    public static ConfigPair PARTICLES_ENTRIES_EXAMPLE_MINSPAWNAMOUNT = new ConfigPair("particles.entries.snowflake." + PARTICLES_ENTRIES_MINSPAWNAMOUNT_BASE.getPath(),
+    public static ConfigPair PARTICLES_ENTRIES_EXAMPLE_MINSPAWNAMOUNT = new ConfigPair("particles.entityEntries.snowflake." + PARTICLES_ENTRIES_MINSPAWNAMOUNT_BASE.getPath(),
                                                                                        10);
-    public static ConfigPair PARTICLES_ENTRIES_EXAMPLE_MAXSPAWNAMOUNT = new ConfigPair("particles.entries.snowflake." + PARTICLES_ENTRIES_MAXSPAWNAMOUNT_BASE.getPath(),
+    public static ConfigPair PARTICLES_ENTRIES_EXAMPLE_MAXSPAWNAMOUNT = new ConfigPair("particles.entityEntries.snowflake." + PARTICLES_ENTRIES_MAXSPAWNAMOUNT_BASE.getPath(),
                                                                                        50);
     @ConfigExclude
     public static ConfigPair COMMENT_PARTICLES_OFFSET = new ConfigPair("particles.offset",
@@ -151,7 +151,7 @@ public final class SeasonConfigPathProvider {
 
     public static ConfigPair BOSS_SPAWNING_ENABLED = new ConfigPair("bossSpawning.enabled", true);
     @ConfigExclude
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_BASE = new ConfigPair("bossSpawning.entries", null);
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_BASE = new ConfigPair("bossSpawning.entityEntries", null);
     @ConfigExclude
     public static ConfigPair BOSS_SPAWNING_ENTRIES_ENABLED_BASE = new ConfigPair("enabled", null);
     @ConfigExclude
@@ -177,29 +177,29 @@ public final class SeasonConfigPathProvider {
     @ConfigExclude
     public static ConfigPair BOSS_SPAWNING_ENTRIES_LOOTDROPS_ENABLED_BASE = new ConfigPair("lootDrops.enabled", null);
     @ConfigExclude
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_LOOTDROPS_ENTRIES_BASE = new ConfigPair("lootDrops.entries", null);
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ENABLED = new ConfigPair("bossSpawning.entries.EasyZombie.enabled", true);
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_MOBTYPE = new ConfigPair("bossSpawning.entries.EasyZombie.mobType", "zombie");
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_DISPLAYNAME = new ConfigPair("bossSpawning.entries.EasyZombie.displayname", "<green>E-Tier BOSS <gray>| <green>%health%<gray>/<red>%maxhealth%");
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_SPAWNCHANCE = new ConfigPair("bossSpawning.entries.EasyZombie.spawnChance", 80);
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ITEMINHAND_ENABLED = new ConfigPair("bossSpawning.entries.EasyZombie.itemInHand.enabled", true);
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ITEMINHAND_MATERIAL = new ConfigPair("bossSpawning.entries.EasyZombie.itemInHand.material", Material.IRON_SWORD.name());
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ITEMINHAND_DISPLAYNAME = new ConfigPair("bossSpawning.entries.EasyZombie.itemInHand.displayname", "<green>E-Tier Sword");
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ITEMINHAND_DROPCHANCE = new ConfigPair("bossSpawning.entries.EasyZombie.itemInHand.dropChance", 70);
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ITEMINHAND_LORE = new ConfigPair("bossSpawning.entries.EasyZombie.itemInHand.lore", List.of("<gray>The sword of a fallen E-Tier boss."));
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ITEMINHAND_ENCHANTMENTS = new ConfigPair("bossSpawning.entries.EasyZombie.itemInHand.enchantments" + ".sharpness", 1);
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ITEMINHAND_ENCHANTMENTS_1 = new ConfigPair("bossSpawning.entries.EasyZombie.itemInHand.enchantments" + ".unbreaking", 1);
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ATTRIBUTES = new ConfigPair("bossSpawning.entries.EasyZombie.attributes.generic_max_health", 30);
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ATTRIBUTES_1 = new ConfigPair("bossSpawning.entries.EasyZombie.attributes.generic_attack_damage", 3);
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_LOOTDROPS_ENABLED = new ConfigPair("bossSpawning.entries.EasyZombie.lootDrops.enabled", true);
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_LOOTDROPS_MATERIAL = new ConfigPair("bossSpawning.entries.EasyZombie.lootDrops.entries.ExampleItem.material", "golden_apple");
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_LOOTDROPS_DISPLAYNAME = new ConfigPair("bossSpawning.entries.EasyZombie.lootDrops.entries.ExampleItem.displayname", "<green>Golden Apple");
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_LOOTDROPS_DROPCHANCE = new ConfigPair("bossSpawning.entries.EasyZombie.lootDrops.entries.ExampleItem.dropChance", 60);
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_LOOTDROPS_AMOUNT = new ConfigPair("bossSpawning.entries.EasyZombie.lootDrops.entries.ExampleItem.amount", 1);
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_LOOTDROPS_LORE = new ConfigPair("bossSpawning.entries.EasyZombie.lootDrops.entries.ExampleItem.lore", List.of("<gray>Dropped by <green>E-Tier bosses"));
-    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_LOOTDROPS_ENCHANTMENTS = new ConfigPair("bossSpawning.entries.EasyZombie.lootDrops.entries.ExampleItem.enchantments.mending", 1);
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_LOOTDROPS_ENTRIES_BASE = new ConfigPair("lootDrops.entityEntries", null);
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ENABLED = new ConfigPair("bossSpawning.entityEntries.EasyZombie.enabled", true);
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_MOBTYPE = new ConfigPair("bossSpawning.entityEntries.EasyZombie.mobType", "zombie");
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_DISPLAYNAME = new ConfigPair("bossSpawning.entityEntries.EasyZombie.displayname", "<green>E-Tier BOSS <gray>| <green>%health%<gray>/<red>%maxhealth%");
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_SPAWNCHANCE = new ConfigPair("bossSpawning.entityEntries.EasyZombie.spawnChance", 80);
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ITEMINHAND_ENABLED = new ConfigPair("bossSpawning.entityEntries.EasyZombie.itemInHand.enabled", true);
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ITEMINHAND_MATERIAL = new ConfigPair("bossSpawning.entityEntries.EasyZombie.itemInHand.material", Material.IRON_SWORD.name());
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ITEMINHAND_DISPLAYNAME = new ConfigPair("bossSpawning.entityEntries.EasyZombie.itemInHand.displayname", "<green>E-Tier Sword");
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ITEMINHAND_DROPCHANCE = new ConfigPair("bossSpawning.entityEntries.EasyZombie.itemInHand.dropChance", 70);
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ITEMINHAND_LORE = new ConfigPair("bossSpawning.entityEntries.EasyZombie.itemInHand.lore", List.of("<gray>The sword of a fallen E-Tier boss."));
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ITEMINHAND_ENCHANTMENTS = new ConfigPair("bossSpawning.entityEntries.EasyZombie.itemInHand.enchantments" + ".sharpness", 1);
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ITEMINHAND_ENCHANTMENTS_1 = new ConfigPair("bossSpawning.entityEntries.EasyZombie.itemInHand.enchantments" + ".unbreaking", 1);
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ATTRIBUTES = new ConfigPair("bossSpawning.entityEntries.EasyZombie.attributes.generic_max_health", 30);
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_ATTRIBUTES_1 = new ConfigPair("bossSpawning.entityEntries.EasyZombie.attributes.generic_attack_damage", 3);
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_LOOTDROPS_ENABLED = new ConfigPair("bossSpawning.entityEntries.EasyZombie.lootDrops.enabled", true);
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_LOOTDROPS_MATERIAL = new ConfigPair("bossSpawning.entityEntries.EasyZombie.lootDrops.entityEntries.ExampleItem.material", "golden_apple");
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_LOOTDROPS_DISPLAYNAME = new ConfigPair("bossSpawning.entityEntries.EasyZombie.lootDrops.entityEntries.ExampleItem.displayname", "<green>Golden Apple");
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_LOOTDROPS_DROPCHANCE = new ConfigPair("bossSpawning.entityEntries.EasyZombie.lootDrops.entityEntries.ExampleItem.dropChance", 60);
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_LOOTDROPS_AMOUNT = new ConfigPair("bossSpawning.entityEntries.EasyZombie.lootDrops.entityEntries.ExampleItem.amount", 1);
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_LOOTDROPS_LORE = new ConfigPair("bossSpawning.entityEntries.EasyZombie.lootDrops.entityEntries.ExampleItem.lore", List.of("<gray>Dropped by <green>E-Tier bosses"));
+    public static ConfigPair BOSS_SPAWNING_ENTRIES_EXAMPLE_LOOTDROPS_ENCHANTMENTS = new ConfigPair("bossSpawning.entityEntries.EasyZombie.lootDrops.entityEntries.ExampleItem.enchantments.mending", 1);
     @ConfigExclude(excludeComments = false)
-    public static ConfigPair COMMENT_BOSS_SPAWNING_ENTRIES_ENTRYNAME = new ConfigPair("bossSpawning.entries.EasyZombie", null, "The name of the boss entry. Used to specify all the entries.", "will be used in the spawnboss subcommand");
+    public static ConfigPair COMMENT_BOSS_SPAWNING_ENTRIES_ENTRYNAME = new ConfigPair("bossSpawning.entityEntries.EasyZombie", null, "The name of the boss entry. Used to specify all the entityEntries.", "will be used in the spawnboss subcommand");
     @ConfigExclude(excludeComments = false)
     public static ConfigPair COMMENT_BOSS_SPAWNING_ENTRIES_ENABLED = new ConfigPair(BOSS_SPAWNING_ENTRIES_EXAMPLE_ENABLED.getPath(), null, "false = boss will not spawn");
     @ConfigExclude(excludeComments = false)
