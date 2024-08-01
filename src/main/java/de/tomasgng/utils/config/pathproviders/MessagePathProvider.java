@@ -22,6 +22,7 @@ public final class MessagePathProvider {
             "<yellow>/dynseasons reload <dark_gray>| <gray>Reloads the config files",
             "<yellow>/dynseasons update <dark_gray>| <gray>Updates the plugin to the newest version",
             "<yellow>/dynseasons spawnboss <Seasons> <BossName> <dark_gray>| <gray>Spawns a boss from any season",
+            "<yellow>/dynseasons report <Bugreport/feedback> <Message> <dark_gray>| <gray>Send an anonymous feedback to the plugin author",
             " "
     ));
     public static ConfigPair COMMAND_PLAYERONLY = new ConfigPair("command.playerOnly", "%prefix% <red>This command can only be executed by players.");
@@ -38,6 +39,11 @@ public final class MessagePathProvider {
     public static ConfigPair COMMAND_RELOAD_WARNINGS = new ConfigPair("command.reloadWarnings", "%prefix% <red>The following warnings and erros occured when reloading:");
     public static ConfigPair COMMAND_SPAWNBOSS_UNKNOWBOSS = new ConfigPair("command.spawnBoss.unknownBoss", "%prefix% <red>Unknown boss!");
     public static ConfigPair COMMAND_SPAWNBOSS_SUCCESS = new ConfigPair("command.spawnBoss.success", "%prefix% <green>You spawned the %boss% boss.");
+    public static ConfigPair COMMAND_FEEDBACK_COOLDOWN = new ConfigPair("command.feedback.cooldown", "%prefix% <red>You are allowed to send one feedback per minute.");
+    public static ConfigPair COMMAND_FEEDBACK_INVALID_FEEDBACK_TYPE = new ConfigPair("command.feedback.invalidFeedbackType", "%prefix% <red>Invalid feedback type. (Available: Feedback/Bugreport)");
+    public static ConfigPair COMMAND_FEEDBACK_SENDING = new ConfigPair("command.feedback.sending", "%prefix% <green>Sending feedback...");
+    public static ConfigPair COMMAND_FEEDBACK_SUCCESS = new ConfigPair("command.feedback.success", "%prefix% <green>Your feedback has been sent. Thanks!");
+    public static ConfigPair COMMAND_FEEDBACK_FAILURE = new ConfigPair("command.feedback.failure", "%prefix% <red>There was an error while sending your feedback. Check console for more information.");
 
     @ConfigExclude(excludeComments = false)
     public static ConfigPair COMMENT_PREFIX = new ConfigPair("prefix",

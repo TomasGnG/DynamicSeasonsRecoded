@@ -120,6 +120,26 @@ public class MessageDataProvider {
         return replaceAllPlaceholders(msg);
     }
 
+    public Component getCommandFeedbackCooldown() {
+        return replaceAllPlaceholders(manager.getComponentValue(COMMAND_FEEDBACK_COOLDOWN));
+    }
+
+    public Component getCommandFeedbackInvalidFeedbackType() {
+        return replaceAllPlaceholders(manager.getComponentValue(COMMAND_FEEDBACK_INVALID_FEEDBACK_TYPE));
+    }
+
+    public Component getCommandFeedbackSending() {
+        return replaceAllPlaceholders(manager.getComponentValue(COMMAND_FEEDBACK_SENDING));
+    }
+
+    public Component getCommandFeedbackSuccess() {
+        return replaceAllPlaceholders(manager.getComponentValue(COMMAND_FEEDBACK_SUCCESS));
+    }
+
+    public Component getCommandFeedbackFailure() {
+        return replaceAllPlaceholders(manager.getComponentValue(COMMAND_FEEDBACK_FAILURE));
+    }
+
     private Component replaceAllPlaceholders(Component component) {
         String serialized = mm.serialize(component);
 

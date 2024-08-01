@@ -1,6 +1,7 @@
 package de.tomasgng;
 
 import de.tomasgng.commands.DynamicSeasonsCommand;
+import de.tomasgng.feedback.FeedbackHandler;
 import de.tomasgng.listeners.*;
 import de.tomasgng.placeholders.PlaceholderManager;
 import de.tomasgng.utils.Metrics;
@@ -37,6 +38,7 @@ public final class DynamicSeasons extends JavaPlugin {
 
     private SeasonManager seasonManager;
     private PlaceholderManager placeholderManager;
+    private FeedbackHandler feedbackHandler;
 
     @Override
     public void onEnable() {
@@ -82,6 +84,7 @@ public final class DynamicSeasons extends JavaPlugin {
 
         seasonManager = new SeasonManager();
         placeholderManager = new PlaceholderManager();
+        feedbackHandler = new FeedbackHandler();
 
         Metrics metrics = new Metrics(this, 19158);
         metrics.addCustomChart(new Metrics.MultiLineChart("players_and_servers", () -> {
@@ -153,5 +156,9 @@ public final class DynamicSeasons extends JavaPlugin {
 
     public PlaceholderManager getPlaceholderManager() {
         return placeholderManager;
+    }
+
+    public FeedbackHandler getFeedbackHandler() {
+        return feedbackHandler;
     }
 }

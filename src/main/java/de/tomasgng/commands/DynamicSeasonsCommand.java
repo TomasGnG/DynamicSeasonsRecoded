@@ -1,6 +1,9 @@
 package de.tomasgng.commands;
 
 import de.tomasgng.DynamicSeasons;
+import de.tomasgng.feedback.Feedback;
+import de.tomasgng.feedback.FeedbackHandler;
+import de.tomasgng.feedback.FeedbackType;
 import de.tomasgng.utils.PluginLogger;
 import de.tomasgng.utils.PluginUpdater;
 import de.tomasgng.utils.config.dataproviders.ConfigDataProvider;
@@ -22,6 +25,7 @@ public class DynamicSeasonsCommand extends Command {
     private final ConfigDataProvider configDataProvider;
     private final MessageDataProvider messageDataProvider;
     private final SeasonManager seasonManager;
+    private final FeedbackHandler feedbackHandler;
 
     private CommandSender sender;
     private String[] args;
@@ -35,6 +39,7 @@ public class DynamicSeasonsCommand extends Command {
         configDataProvider = DynamicSeasons.getInstance().getConfigDataProvider();
         messageDataProvider = DynamicSeasons.getInstance().getMessageDataProvider();
         seasonManager = DynamicSeasons.getInstance().getSeasonManager();
+        feedbackHandler = DynamicSeasons.getInstance().getFeedbackHandler();
     }
 
     @Override
@@ -65,6 +70,9 @@ public class DynamicSeasonsCommand extends Command {
             return false;
 
         if(checkSpawnBoss())
+            return false;
+
+        if(checkReport())
             return false;
 
         sender.sendMessage(messageDataProvider.getCommandUsage());
@@ -188,6 +196,44 @@ public class DynamicSeasonsCommand extends Command {
         return true;
     }
 
+    private boolean checkReport() {
+        if(args.length < 3)
+            return false;
+
+        String subcommand = args[0];
+        String rawType = args[1];
+        StringBuilder msg = new StringBuilder();
+
+        for (int i = 2; i < args.length; i++) {
+            msg.append(args[i]).append(" ");
+        }
+
+        if(!subcommand.equalsIgnoreCase("report"))
+            return false;
+
+        if(feedbackHandler.isPrevented()) {
+            sender.sendMessage(messageDataProvider.getCommandFeedbackCooldown());
+            return true;
+        }
+
+        FeedbackType feedbackType;
+
+        try {
+            feedbackType = FeedbackType.valueOf(rawType.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            sender.sendMessage(messageDataProvider.getCommandFeedbackInvalidFeedbackType());
+            return true;
+        }
+
+        Feedback feedback = new Feedback(feedbackType, msg.toString());
+
+        sender.sendMessage(messageDataProvider.getCommandFeedbackSending());
+        feedbackHandler.sendFeedback(feedback,
+                                     () -> sender.sendMessage(messageDataProvider.getCommandFeedbackSuccess()),
+                                     () -> sender.sendMessage(messageDataProvider.getCommandFeedbackFailure()));
+        return true;
+    }
+
     private SeasonType getSeasonType(String str) {
         return Arrays.stream(SeasonType.values()).filter(x -> x.name().equalsIgnoreCase(str.toUpperCase()))
                      .findFirst()
@@ -201,7 +247,7 @@ public class DynamicSeasonsCommand extends Command {
             return List.of();
 
         if(args.length == 1)
-            return List.of("setseason", "setremainingtime", "reload", "update", "spawnboss");
+            return List.of("setseason", "setremainingtime", "reload", "update", "spawnboss", "report");
 
         if(args.length == 2) {
             String arg = args[0];
@@ -211,6 +257,9 @@ public class DynamicSeasonsCommand extends Command {
 
             if(arg.equalsIgnoreCase("setremainingtime"))
                 sender.sendActionBar(Component.text(seasonManager.getRemainingTime()));
+
+            if(arg.equalsIgnoreCase("report"))
+                return Arrays.stream(FeedbackType.values()).map(Enum::name).toList();
         }
 
         if(args.length == 3) {
