@@ -71,6 +71,7 @@ public class SeasonManager {
     }
 
     public void changeSeason(SeasonType newSeasonType) {
+        currentSeason.stopAllTimers();
         lastSeasonType = currentSeason.getSeasonType();
         currentSeason = seasons.stream().filter(x -> x.getSeasonType() == newSeasonType).findFirst().get();
         seasonDataProvider.setCurrentSeason(currentSeason.getSeasonType());
@@ -99,6 +100,7 @@ public class SeasonManager {
     }
 
     private void changeSeason() {
+        currentSeason.stopAllTimers();
         lastSeasonType = currentSeason.getSeasonType();
         int seasonIndex = seasons.indexOf(currentSeason);
         currentSeason = seasons.get((seasonIndex+1) % seasons.size());

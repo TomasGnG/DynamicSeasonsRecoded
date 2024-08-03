@@ -423,4 +423,9 @@ public class Season {
     public BossSpawningFeature getBossSpawningFeature() {
         return bossSpawningFeature;
     }
+
+    public void stopAllTimers() {
+        potionEffectsTimer.cancel();
+        particlesTimer.cancel();
+    }
 }
