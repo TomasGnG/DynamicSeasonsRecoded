@@ -73,4 +73,8 @@ public class PluginUpdater {
     private BukkitAudiences adventure() {
         return DynamicSeasons.getInstance().getAdventure();
     }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
 }
