@@ -15,16 +15,21 @@ import de.tomasgng.utils.config.dataproviders.MessageDataProvider;
 import de.tomasgng.utils.config.dataproviders.SeasonConfigDataProvider;
 import de.tomasgng.utils.config.dataproviders.SeasonDataProvider;
 import de.tomasgng.utils.season.SeasonManager;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
 public final class DynamicSeasons extends JavaPlugin {
 
     private static DynamicSeasons INSTANCE;
+
+    private BukkitAudiences adventure;
 
     private ConfigManager configManager;
     private SeasonConfigManager seasonConfigManager;
@@ -42,36 +47,37 @@ public final class DynamicSeasons extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if(!CheckIfServerTypeIsPaper())
-            return;
-
         INSTANCE = this;
 
+        checkIfServerTypeIsPaper();
         init();
 
         VersionChecker.getInstance().isLatestVersion(false);
         placeholderManager.registerAll();
     }
 
-    private boolean CheckIfServerTypeIsPaper() {
+    private void checkIfServerTypeIsPaper() {
         try {
-            Class.forName(com.destroystokyo.paper.event.player.PlayerJumpEvent.class.getName());
-            return true;
-        } catch (NoClassDefFoundError | ClassNotFoundException e) {
-            getLogger().severe("Paper is required for this plugin. Download paper at: https://papermc.io/downloads/paper");
-            getLogger().severe("Disabling this plugin..");
-            Bukkit.getPluginManager().disablePlugin(this);
-            return false;
-        }
+            Class.forName("com.destroystokyo.paper.event.player.PlayerJumpEvent");
+            getLogger().warning("This version is for spigot servers.");
+            getLogger().warning("There is another version for paper servers only.");
+        } catch (NoClassDefFoundError | ClassNotFoundException ignored) {}
     }
 
     @Override
     public void onDisable() {
         if(placeholderManager != null)
             placeholderManager.unregisterAll();
+
+        if(adventure != null) {
+            adventure.close();
+            adventure = null;
+        }
     }
 
     private void init() {
+        adventure = BukkitAudiences.create(this);
+
         configManager = new ConfigManager();
         seasonConfigManager = new SeasonConfigManager();
         messageManager = new MessageManager();
@@ -95,8 +101,7 @@ public final class DynamicSeasons extends JavaPlugin {
         }));
 
         registerEvents();
-
-        getServer().getCommandMap().register("dynamicseasons", new DynamicSeasonsCommand());
+        registerCommand();
     }
 
     private void registerEvents() {
@@ -105,13 +110,27 @@ public final class DynamicSeasons extends JavaPlugin {
         manager.registerEvents(new WeatherChangeListener(), this);
         manager.registerEvents(new ThunderChangeListener(), this);
         manager.registerEvents(new CreatureSpawnListener(), this);
-        manager.registerEvents(new PlayerPickupExperienceListener(), this);
+        manager.registerEvents(new PlayerExpChangeListener(), this);
         manager.registerEvents(new BlockGrowListener(), this);
         manager.registerEvents(new BlockSpreadListener(), this);
         manager.registerEvents(new StructureGrowListener(), this);
         manager.registerEvents(new EntityDeathListener(), this);
         manager.registerEvents(new EntityDamageListener(), this);
         manager.registerEvents(new BlockBreakListener(), this);
+    }
+
+    private void registerCommand() {
+        try {
+            final Field bukkitCmdMap = getServer().getClass().getDeclaredField("commandMap");
+            bukkitCmdMap.setAccessible(true);
+
+            CommandMap comamndMap = (CommandMap) bukkitCmdMap.get(getServer());
+
+            comamndMap.register("dynamicseasons", new DynamicSeasonsCommand());
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            getLogger().severe("Couldn't register DynamicSeasons command!");
+            getLogger().severe(e.getMessage());
+        }
     }
 
     public static DynamicSeasons getInstance() {
@@ -160,5 +179,13 @@ public final class DynamicSeasons extends JavaPlugin {
 
     public FeedbackHandler getFeedbackHandler() {
         return feedbackHandler;
+    }
+
+    public BukkitAudiences getAdventure() {
+        if(adventure == null) {
+            throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
+        }
+
+        return adventure;
     }
 }

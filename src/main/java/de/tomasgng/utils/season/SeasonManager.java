@@ -6,16 +6,17 @@ import de.tomasgng.utils.config.dataproviders.ConfigDataProvider;
 import de.tomasgng.utils.config.dataproviders.MessageDataProvider;
 import de.tomasgng.utils.config.dataproviders.SeasonDataProvider;
 import de.tomasgng.utils.enums.SeasonType;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class SeasonManager {
 
+    private final BukkitAudiences adventure;
     private final SeasonDataProvider seasonDataProvider;
     private final ConfigDataProvider configDataProvider;
     private final MessageDataProvider messageDataProvider;
@@ -34,6 +35,7 @@ public class SeasonManager {
     private int remainingTime;
 
     public SeasonManager() {
+        adventure = DynamicSeasons.getInstance().getAdventure();
         seasonDataProvider = DynamicSeasons.getInstance().getSeasonDataProvider();
         configDataProvider = DynamicSeasons.getInstance().getConfigDataProvider();
         messageDataProvider = DynamicSeasons.getInstance().getMessageDataProvider();
@@ -50,9 +52,11 @@ public class SeasonManager {
     }
 
     public void startSeasonTimer() {
-        Bukkit.getAsyncScheduler().runAtFixedRate(DynamicSeasons.getInstance(), task -> {
-            decreaseRemainingTime();
-        }, 2, 1, TimeUnit.SECONDS);
+        Bukkit.getScheduler()
+              .runTaskTimerAsynchronously(DynamicSeasons.getInstance(),
+                                          this::decreaseRemainingTime,
+                                          2 * 20L,
+                                          20L);
     }
 
     public void setRemainingTime(int remainingTime) {
@@ -115,7 +119,7 @@ public class SeasonManager {
 
     private void announceSeasonChange() {
         if(configDataProvider.isSeasonChangeBroadcastEnabled()) {
-            Bukkit.broadcast(messageDataProvider.getSeasonChangeBroadcastMessage());
+            adventure.players().sendMessage(messageDataProvider.getSeasonChangeBroadcastMessage());
         }
 
         if(configDataProvider.isSeasonChangeTitleEnabled()) {
@@ -128,7 +132,7 @@ public class SeasonManager {
 
             Title title = Title.title(mainTitle, subTitle, times);
 
-            Bukkit.getOnlinePlayers().forEach(player -> player.showTitle(title));
+            adventure.players().showTitle(title);
         }
     }
 

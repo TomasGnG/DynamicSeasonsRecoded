@@ -1,14 +1,11 @@
 package de.tomasgng.utils.season;
 
-import com.destroystokyo.paper.ParticleBuilder;
-import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import de.tomasgng.DynamicSeasons;
 import de.tomasgng.utils.config.dataproviders.ConfigDataProvider;
 import de.tomasgng.utils.config.dataproviders.SeasonConfigDataProvider;
 import de.tomasgng.utils.enums.SeasonType;
 import de.tomasgng.utils.features.*;
 import de.tomasgng.utils.features.utils.*;
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
@@ -19,6 +16,7 @@ import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.world.StructureGrowEvent;
@@ -32,7 +30,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 public class Season {
 
@@ -55,7 +52,7 @@ public class Season {
     private ParticlesFeature particlesFeature;
     private BossSpawningFeature bossSpawningFeature;
 
-    private ScheduledTask potionEffectsTimer;
+    private BukkitTask potionEffectsTimer;
     private BukkitTask particlesTimer;
 
     public Season(SeasonType seasonType) {
@@ -108,9 +105,6 @@ public class Season {
         if(isNotWhitelistedWorld(e.getWorld()))
             return;
 
-        if(e.getCause() == WeatherChangeEvent.Cause.COMMAND)
-            return;
-
         if(!weatherFeature.isEnabled())
             return;
 
@@ -123,9 +117,6 @@ public class Season {
 
     public void handleThunderChangeEvent(ThunderChangeEvent e) {
         if(isNotWhitelistedWorld(e.getWorld()))
-            return;
-
-        if(e.getCause() == ThunderChangeEvent.Cause.COMMAND)
             return;
 
         if(!weatherFeature.isEnabled())
@@ -255,21 +246,20 @@ public class Season {
             return;
         }
 
-        Bukkit.getAsyncScheduler().runDelayed(
+        Bukkit.getScheduler().runTaskLater(
                 DynamicSeasons.getInstance(),
                 scheduledTask -> breedable.setAdult(),
-                entry.growTimeInSeconds(),
-                TimeUnit.SECONDS);
+                entry.growTimeInSeconds() * 20L);
     }
 
-    public void handlePlayerPickupExperienceEvent(PlayerPickupExperienceEvent e) {
+    public void handlePlayerPickupExperienceEvent(PlayerExpChangeEvent e) {
         if(!xpBonusFeature.isEnabled())
             return;
 
         double bonus = (xpBonusFeature.xpBonus() / 100.0) + 1;
-        int newXP = BigDecimal.valueOf(e.getExperienceOrb().getExperience() * bonus).setScale(0, RoundingMode.HALF_UP).intValue();
+        int newXP = BigDecimal.valueOf(e.getAmount() * bonus).setScale(0, RoundingMode.HALF_UP).intValue();
 
-        e.getExperienceOrb().setExperience(newXP);
+        e.setAmount(newXP);
     }
 
     public void handlePreventCropGrowing(Event event, World world) {
@@ -293,7 +283,6 @@ public class Season {
                     structureGrowEvent.setCancelled(true);
                 return;
             default:
-                return;
         }
     }
 
@@ -301,17 +290,21 @@ public class Season {
         if(potionEffectsTimer != null)
             potionEffectsTimer.cancel();
 
-        potionEffectsTimer = Bukkit.getAsyncScheduler().runAtFixedRate(DynamicSeasons.getInstance(), scheduledTask -> {
-            if(scheduledTask.isCancelled())
-                return;
+        potionEffectsTimer = Bukkit.getScheduler().runTaskTimer(DynamicSeasons.getInstance(),
+            new Runnable() {
+                @Override
+                public void run() {
+                    if (potionEffectsTimer.isCancelled())
+                        return;
 
-            if(!potionEffectsFeature.isEnabled())
-                return;
+                    if (!potionEffectsFeature.isEnabled())
+                        return;
 
-            for (World world : worlds) {
-                world.getPlayers().forEach(this::givePlayerPotionEffects);
-            }
-        }, 3, 5, TimeUnit.SECONDS);
+                    for (World world : worlds) {
+                        world.getPlayers().forEach(player -> givePlayerPotionEffects(player));
+                    }
+                }
+            }, 3 * 20L, 5 * 20L);
     }
 
     private void givePlayerPotionEffects(Player player) {
@@ -394,12 +387,15 @@ public class Season {
             worlds.forEach(world -> players.addAll(world.getPlayers()));
 
             for (ParticlesEntry entry : particlesFeature.entries()) {
-                ParticleBuilder particleBuilder = new ParticleBuilder(entry.particle())
-                        .count(random.nextInt(entry.minSpawnAmount(), entry.maxSpawnAmount()+1))
-                        .extra(entry.speed())
-                        .offset(entry.offsetX(), entry.offsetY(), entry.offsetZ());
-
-                players.forEach(player -> particleBuilder.receivers(player).location(player.getLocation()).spawn());
+                for (Player player : players) {
+                    player.spawnParticle(entry.particle(),
+                                         player.getLocation(),
+                                         random.nextInt(entry.minSpawnAmount(), entry.maxSpawnAmount()+1),
+                                         entry.offsetX(),
+                                         entry.offsetY(),
+                                         entry.offsetZ(),
+                                         entry.speed());
+                }
             }
         }, particlesFeature.spawnTimeInTicks(), particlesFeature.spawnTimeInTicks());
     }

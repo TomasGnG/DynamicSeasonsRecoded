@@ -1,6 +1,7 @@
 package de.tomasgng.utils.features.utils;
 
 import de.tomasgng.DynamicSeasons;
+import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -102,7 +103,7 @@ public final class BossSpawningEntry {
                                 .replaceAll("%health%", health)
                                 .replace("%maxhealth%", maxHealth);
 
-            entity.customName(mm.deserialize(replaced));
+            entity.setCustomName(BukkitComponentSerializer.legacy().serialize(mm.deserialize(replaced)));
         });
     }
 

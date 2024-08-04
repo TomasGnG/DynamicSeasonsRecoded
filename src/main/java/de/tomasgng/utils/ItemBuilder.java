@@ -1,7 +1,9 @@
 package de.tomasgng.utils;
 
+import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -12,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ItemBuilder {
+
+    private final LegacyComponentSerializer legacy = BukkitComponentSerializer.legacy();
 
     private final ItemStack itemStack;
     private final ItemMeta itemMeta;
@@ -27,7 +31,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder displayname(Component displayname) {
-        this.itemMeta.displayName(displayname.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE));
+        this.itemMeta.setDisplayName(legacy.serialize(displayname.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)));
         return this;
     }
 
@@ -35,7 +39,8 @@ public class ItemBuilder {
         List<Component> formattedLore = Arrays.stream(lore)
                                               .map(x -> x.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                                               .toList();
-        this.itemMeta.lore(formattedLore);
+
+        this.itemMeta.setLore(formattedLore.stream().map(legacy::serialize).toList());
         return this;
     }
 
@@ -44,7 +49,8 @@ public class ItemBuilder {
                 .stream()
                 .map(x -> x.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE))
                 .toList();
-        this.itemMeta.lore(formattedLore);
+
+        this.itemMeta.setLore(formattedLore.stream().map(legacy::serialize).toList());
         return this;
     }
 

@@ -11,6 +11,7 @@ import de.tomasgng.utils.config.dataproviders.MessageDataProvider;
 import de.tomasgng.utils.enums.SeasonType;
 import de.tomasgng.utils.features.BossSpawningFeature;
 import de.tomasgng.utils.season.SeasonManager;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -22,6 +23,7 @@ import java.util.List;
 
 public class DynamicSeasonsCommand extends Command {
 
+    private final BukkitAudiences adventure;
     private final ConfigDataProvider configDataProvider;
     private final MessageDataProvider messageDataProvider;
     private final SeasonManager seasonManager;
@@ -36,6 +38,7 @@ public class DynamicSeasonsCommand extends Command {
                 "",
                 DynamicSeasons.getInstance().getConfigDataProvider().getCommandAliases());
 
+        adventure = DynamicSeasons.getInstance().getAdventure();
         configDataProvider = DynamicSeasons.getInstance().getConfigDataProvider();
         messageDataProvider = DynamicSeasons.getInstance().getMessageDataProvider();
         seasonManager = DynamicSeasons.getInstance().getSeasonManager();
@@ -45,12 +48,12 @@ public class DynamicSeasonsCommand extends Command {
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
         if(!sender.hasPermission(configDataProvider.getCommandPermission())) {
-            sender.sendMessage(messageDataProvider.getCommandNoPermission());
+            adventure.sender(sender).sendMessage(messageDataProvider.getCommandNoPermission());
             return false;
         }
 
         if(args.length == 0) {
-            sender.sendMessage(messageDataProvider.getCommandUsage());
+            adventure.sender(sender).sendMessage(messageDataProvider.getCommandUsage());
             return false;
         }
 
@@ -75,7 +78,7 @@ public class DynamicSeasonsCommand extends Command {
         if(checkReport())
             return false;
 
-        sender.sendMessage(messageDataProvider.getCommandUsage());
+        adventure.sender(sender).sendMessage(messageDataProvider.getCommandUsage());
         return false;
     }
 
@@ -103,7 +106,7 @@ public class DynamicSeasonsCommand extends Command {
 
         PluginLogger.getInstance().clearLoggedMessages();
         seasonManager.reload();
-        sender.sendMessage(messageDataProvider.getCommandReloadSuccess());
+        adventure.sender(sender).sendMessage(messageDataProvider.getCommandReloadSuccess());
 
         if(configDataProvider.isCommandShowWarningsOnReloadEnabled()) {
             PluginLogger.getInstance().showLoggedMessages(sender);
@@ -125,12 +128,12 @@ public class DynamicSeasonsCommand extends Command {
         SeasonType seasonType = getSeasonType(newSeason);
 
         if(seasonType == null) {
-            sender.sendMessage(messageDataProvider.getCommandInvalidSeasonInput());
+            adventure.sender(sender).sendMessage(messageDataProvider.getCommandInvalidSeasonInput());
             return true;
         }
 
         seasonManager.changeSeason(seasonType);
-        sender.sendMessage(messageDataProvider.getCommandSetSeasonSuccess());
+        adventure.sender(sender).sendMessage(messageDataProvider.getCommandSetSeasonSuccess());
         return true;
     }
 
@@ -151,12 +154,12 @@ public class DynamicSeasonsCommand extends Command {
             if(newRemainingTime <= 0)
                 throw new NumberFormatException();
         } catch(NumberFormatException e) {
-            sender.sendMessage(messageDataProvider.getCommandInvalidNumberInput());
+            adventure.sender(sender).sendMessage(messageDataProvider.getCommandInvalidNumberInput());
             return true;
         }
 
         seasonManager.setRemainingTime(newRemainingTime);
-        sender.sendMessage(messageDataProvider.getCommandSetRemainingTimeSuccess());
+        adventure.sender(sender).sendMessage(messageDataProvider.getCommandSetRemainingTimeSuccess());
         return true;
     }
 
@@ -172,14 +175,14 @@ public class DynamicSeasonsCommand extends Command {
             return false;
 
         if(!(sender instanceof Player player)) {
-            sender.sendMessage(messageDataProvider.getCommandPlayerOnly());
+            adventure.sender(sender).sendMessage(messageDataProvider.getCommandPlayerOnly());
             return true;
         }
 
         SeasonType seasonType = getSeasonType(season);
 
         if(seasonType == null) {
-            player.sendMessage(messageDataProvider.getCommandInvalidSeasonInput());
+            adventure.player(player).sendMessage(messageDataProvider.getCommandInvalidSeasonInput());
             return true;
         }
 
@@ -187,12 +190,12 @@ public class DynamicSeasonsCommand extends Command {
         List<String> bossList = feature.getAllEntryNames();
 
         if(!bossList.contains(bossName)) {
-            player.sendMessage(messageDataProvider.getCommandSpawnBossUnknownBoss());
+            adventure.player(player).sendMessage(messageDataProvider.getCommandSpawnBossUnknownBoss());
             return true;
         }
 
         feature.spawnBoss(player, bossName);
-        player.sendMessage(messageDataProvider.getCommandSpawnBossSuccess(bossName));
+        adventure.player(player).sendMessage(messageDataProvider.getCommandSpawnBossSuccess(bossName));
         return true;
     }
 
@@ -212,7 +215,7 @@ public class DynamicSeasonsCommand extends Command {
             return false;
 
         if(feedbackHandler.isPrevented()) {
-            sender.sendMessage(messageDataProvider.getCommandFeedbackCooldown());
+            adventure.sender(sender).sendMessage(messageDataProvider.getCommandFeedbackCooldown());
             return true;
         }
 
@@ -221,16 +224,16 @@ public class DynamicSeasonsCommand extends Command {
         try {
             feedbackType = FeedbackType.valueOf(rawType.toUpperCase());
         } catch (IllegalArgumentException e) {
-            sender.sendMessage(messageDataProvider.getCommandFeedbackInvalidFeedbackType());
+            adventure.sender(sender).sendMessage(messageDataProvider.getCommandFeedbackInvalidFeedbackType());
             return true;
         }
 
         Feedback feedback = new Feedback(feedbackType, msg.toString());
 
-        sender.sendMessage(messageDataProvider.getCommandFeedbackSending());
+        adventure.sender(sender).sendMessage(messageDataProvider.getCommandFeedbackSending());
         feedbackHandler.sendFeedback(feedback,
-                                     () -> sender.sendMessage(messageDataProvider.getCommandFeedbackSuccess()),
-                                     () -> sender.sendMessage(messageDataProvider.getCommandFeedbackFailure()));
+                                     () -> adventure.sender(sender).sendMessage(messageDataProvider.getCommandFeedbackSuccess()),
+                                     () -> adventure.sender(sender).sendMessage(messageDataProvider.getCommandFeedbackFailure()));
         return true;
     }
 
@@ -256,7 +259,7 @@ public class DynamicSeasonsCommand extends Command {
                 return Arrays.stream(SeasonType.values()).map(Enum::name).toList();
 
             if(arg.equalsIgnoreCase("setremainingtime"))
-                sender.sendActionBar(Component.text(seasonManager.getRemainingTime()));
+                adventure.sender(sender).sendActionBar(Component.text(seasonManager.getRemainingTime()));
 
             if(arg.equalsIgnoreCase("report"))
                 return Arrays.stream(FeedbackType.values()).map(Enum::name).toList();

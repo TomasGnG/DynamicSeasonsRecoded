@@ -29,12 +29,12 @@ public class DurationPlaceholder extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getAuthor() {
-        return DynamicSeasons.getInstance().getPluginMeta().getName();
+        return DynamicSeasons.getInstance().getDescription().getName();
     }
 
     @Override
     public @NotNull String getVersion() {
-        return DynamicSeasons.getInstance().getPluginMeta().getVersion();
+        return DynamicSeasons.getInstance().getDescription().getVersion();
     }
 
     @Override

@@ -2,6 +2,7 @@ package de.tomasgng.utils;
 
 import de.tomasgng.DynamicSeasons;
 import de.tomasgng.utils.config.dataproviders.MessageDataProvider;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -21,28 +22,28 @@ public class PluginUpdater {
     private static PluginUpdater instance;
 
     private final MessageDataProvider messageDataProvider = DynamicSeasons.getInstance().getMessageDataProvider();
-    private final String downloadUrl = "https://api.spiget.org/v2/resources/111362/download";
+    private final String downloadUrl = "https://tomasgng.dev/plugins/dynamicseasons/download/DynamicSeasons-" + VersionChecker.getInstance().getUrlVersion() + "-spigot.jar";
 
     public void update(@Nullable CommandSender sender) {
         if(VersionChecker.getInstance().isLatestVersion(true)) {
             if(sender != null)
-                sender.sendMessage(messageDataProvider.getCommandUpdateNoUpdatesAvailable());
+                adventure().sender(sender).sendMessage(messageDataProvider.getCommandUpdateNoUpdatesAvailable());
             return;
         }
 
         if(sender != null)
-            sender.sendMessage(messageDataProvider.getCommandUpdateStarted());
+            adventure().sender(sender).sendMessage(messageDataProvider.getCommandUpdateStarted());
 
         String latestVersion = VersionChecker.getInstance().getUrlVersion();
         download(sender, latestVersion);
     }
 
     private void download(@Nullable CommandSender sender, String latestVersion) {
-        Bukkit.getAsyncScheduler().runNow(DynamicSeasons.getInstance(), scheduledTask -> {
+        Bukkit.getScheduler().runTask(DynamicSeasons.getInstance(), scheduledTask -> {
             if(!Bukkit.getUpdateFolderFile().exists())
                 Bukkit.getUpdateFolderFile().mkdirs();
 
-            File downloadFile = Path.of(Bukkit.getServer().getUpdateFolderFile().getPath(), "DynamicSeasons" + latestVersion.replaceAll("\\.", "_") + ".jar").toFile();
+            File downloadFile = Path.of(Bukkit.getServer().getUpdateFolderFile().getPath(), "DynamicSeasons-" + latestVersion + "-spigot.jar").toFile();
 
             try (InputStream in = new URI(downloadUrl).toURL().openStream()) {
                 Files.copy(in, downloadFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -59,7 +60,7 @@ public class PluginUpdater {
     }
 
     private void sendMessage(CommandSender sender, Component msg) {
-        Bukkit.getScheduler().runTask(DynamicSeasons.getInstance(), () -> sender.sendMessage(msg));
+        Bukkit.getScheduler().runTask(DynamicSeasons.getInstance(), () -> adventure().sender(sender).sendMessage(msg));
     }
 
     public static PluginUpdater getInstance() {
@@ -67,5 +68,9 @@ public class PluginUpdater {
             instance = new PluginUpdater();
 
         return instance;
+    }
+
+    private BukkitAudiences adventure() {
+        return DynamicSeasons.getInstance().getAdventure();
     }
 }

@@ -1,14 +1,14 @@
 package de.tomasgng.listeners;
 
-import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import de.tomasgng.DynamicSeasons;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 
-public class PlayerPickupExperienceListener implements Listener {
+public class PlayerExpChangeListener implements Listener {
 
     @EventHandler
-    public void on(PlayerPickupExperienceEvent event) {
+    public void on(PlayerExpChangeEvent event) {
         DynamicSeasons.getInstance().getSeasonManager().getCurrentSeason().handlePlayerPickupExperienceEvent(event);
     }
 }

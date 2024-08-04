@@ -8,7 +8,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.concurrent.TimeUnit;
 
 public class FeedbackHandler {
 
@@ -20,7 +19,7 @@ public class FeedbackHandler {
 
         final String url = "http://213.165.94.207:8080/feedback/post";
 
-        Bukkit.getAsyncScheduler().runNow(DynamicSeasons.getInstance(), task -> {
+        Bukkit.getScheduler().runTaskAsynchronously(DynamicSeasons.getInstance(), task -> {
             try (HttpClient client = HttpClient.newHttpClient()) {
                 HttpRequest request = HttpRequest.newBuilder()
                                                  .uri(URI.create(url))
@@ -51,9 +50,9 @@ public class FeedbackHandler {
     private void preventFromSending() {
         prevented = true;
 
-        Bukkit.getAsyncScheduler().runDelayed(DynamicSeasons.getInstance(),
+        Bukkit.getScheduler().runTaskLater(DynamicSeasons.getInstance(),
                                               task -> prevented = false,
-                                              1, TimeUnit.MINUTES);
+                                              60 * 1000L);
     }
 
     public boolean isPrevented() {
