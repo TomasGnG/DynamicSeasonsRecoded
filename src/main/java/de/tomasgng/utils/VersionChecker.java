@@ -5,7 +5,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URI;
@@ -80,16 +79,12 @@ public final class VersionChecker {
     }
 
     public String getUrlVersion() {
-        String spigetUrl = "https://api.spiget.org/v2/resources/111362/versions/latest";
+        String spigetUrl = "https://tomasgng.dev/plugins/dynamicseasons/version";
         String version = currentVersion;
 
         try {
             URL url = new URI(spigetUrl).toURL();
-            String rawJson = IOUtils.toString(url, StandardCharsets.UTF_8);
-            JSONObject jsonObject = new JSONObject(rawJson);
-
-            if(jsonObject.has("name"))
-                version = jsonObject.get("name").toString();
+            version = IOUtils.toString(url, StandardCharsets.UTF_8);
         } catch (URISyntaxException | IOException e) {
             logger.severe(e.getLocalizedMessage());
         }

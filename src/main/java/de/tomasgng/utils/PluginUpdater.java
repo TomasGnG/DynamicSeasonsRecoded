@@ -21,7 +21,7 @@ public class PluginUpdater {
     private static PluginUpdater instance;
 
     private final MessageDataProvider messageDataProvider = DynamicSeasons.getInstance().getMessageDataProvider();
-    private final String downloadUrl = "https://api.spiget.org/v2/resources/111362/download";
+    private final String downloadUrl = "https://tomasgng.dev/plugins/dynamicseasons/download/DynamicSeasons-" + VersionChecker.getInstance().getUrlVersion() + "-paper.jar";
 
     public void update(@Nullable CommandSender sender) {
         if(VersionChecker.getInstance().isLatestVersion(true)) {
@@ -42,7 +42,7 @@ public class PluginUpdater {
             if(!Bukkit.getUpdateFolderFile().exists())
                 Bukkit.getUpdateFolderFile().mkdirs();
 
-            File downloadFile = Path.of(Bukkit.getServer().getUpdateFolderFile().getPath(), "DynamicSeasons" + latestVersion.replaceAll("\\.", "_") + ".jar").toFile();
+            File downloadFile = Path.of(Bukkit.getServer().getUpdateFolderFile().getPath(), "DynamicSeasons-" + latestVersion + "-paper.jar").toFile();
 
             try (InputStream in = new URI(downloadUrl).toURL().openStream()) {
                 Files.copy(in, downloadFile.toPath(), StandardCopyOption.REPLACE_EXISTING);

@@ -58,7 +58,9 @@ public final class DynamicSeasons extends JavaPlugin {
             Class.forName(com.destroystokyo.paper.event.player.PlayerJumpEvent.class.getName());
             return true;
         } catch (NoClassDefFoundError | ClassNotFoundException e) {
-            getLogger().severe("Paper is required for this plugin. Download paper at: https://papermc.io/downloads/paper");
+            getLogger().severe("This version is for paper servers. You have two options:");
+            getLogger().severe("1. Use paper server software (https://papermc.io/downloads/paper)");
+            getLogger().severe("2. Download the spigot version (https://www.spigotmc.org/resources/111362/)");
             getLogger().severe("Disabling this plugin..");
             Bukkit.getPluginManager().disablePlugin(this);
             return false;
