@@ -20,7 +20,8 @@ public class FeedbackHandler {
         final String url = "http://213.165.94.207:8080/feedback/post";
 
         Bukkit.getScheduler().runTaskAsynchronously(DynamicSeasons.getInstance(), task -> {
-            try (HttpClient client = HttpClient.newHttpClient()) {
+            try {
+                HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
                                                  .uri(URI.create(url))
                                                  .header("Content-Type", "application/json")

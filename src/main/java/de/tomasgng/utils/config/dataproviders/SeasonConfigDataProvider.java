@@ -171,7 +171,7 @@ public class SeasonConfigDataProvider {
             String path = POTION_EFFECTS_ENTRIES_BASE.getPath() + "." + key;
 
             try {
-                PotionEffectType type = Registry.EFFECT.get(NamespacedKey.fromString(key.toLowerCase()));
+                PotionEffectType type = PotionEffectType.getByName(key.toUpperCase());
 
                 if(type == null) {
                     logger.warn(key + " is not a valid potion effect type. Path in config: " + path);

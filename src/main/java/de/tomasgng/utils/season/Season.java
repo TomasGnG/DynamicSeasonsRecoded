@@ -3,6 +3,7 @@ package de.tomasgng.utils.season;
 import de.tomasgng.DynamicSeasons;
 import de.tomasgng.utils.config.dataproviders.ConfigDataProvider;
 import de.tomasgng.utils.config.dataproviders.SeasonConfigDataProvider;
+import de.tomasgng.utils.config.dataproviders.SeasonDataProvider;
 import de.tomasgng.utils.enums.SeasonType;
 import de.tomasgng.utils.features.*;
 import de.tomasgng.utils.features.utils.*;
@@ -38,6 +39,7 @@ public class Season {
 
     private final ConfigDataProvider configDataProvider;
     private final SeasonConfigDataProvider seasonConfigDataProvider;
+    private final SeasonDataProvider seasonDataProvider;
     private final List<World> worlds = new ArrayList<>();
 
     private WeatherFeature weatherFeature;
@@ -59,6 +61,7 @@ public class Season {
         this.seasonType = seasonType;
         configDataProvider = DynamicSeasons.getInstance().getConfigDataProvider();
         seasonConfigDataProvider = DynamicSeasons.getInstance().getSeasonConfigDataProvider();
+        seasonDataProvider = DynamicSeasons.getInstance().getSeasonDataProvider();
     }
 
     public void init() {
@@ -269,20 +272,15 @@ public class Season {
         if(!preventCropGrowingFeature.isEnabled())
             return;
 
-        switch (event) {
-            case BlockSpreadEvent blockSpreadEvent:
-                if(preventCropGrowingFeature.isPrevented(blockSpreadEvent.getNewState().getType()))
-                    blockSpreadEvent.setCancelled(true);
-                return;
-            case BlockGrowEvent blockGrowEvent:
-                if(preventCropGrowingFeature.isPrevented(blockGrowEvent.getNewState().getType()))
-                    blockGrowEvent.setCancelled(true);
-                return;
-            case StructureGrowEvent structureGrowEvent:
-                if(preventCropGrowingFeature.isPrevented(structureGrowEvent.getSpecies()))
-                    structureGrowEvent.setCancelled(true);
-                return;
-            default:
+        if (event instanceof BlockSpreadEvent blockSpreadEvent) {
+            if (preventCropGrowingFeature.isPrevented(blockSpreadEvent.getNewState().getType()))
+                blockSpreadEvent.setCancelled(true);
+        } else if (event instanceof BlockGrowEvent blockGrowEvent) {
+            if (preventCropGrowingFeature.isPrevented(blockGrowEvent.getNewState().getType()))
+                blockGrowEvent.setCancelled(true);
+        } else if (event instanceof StructureGrowEvent structureGrowEvent) {
+            if (preventCropGrowingFeature.isPrevented(structureGrowEvent.getSpecies()))
+                structureGrowEvent.setCancelled(true);
         }
     }
 
@@ -387,7 +385,7 @@ public class Season {
             worlds.forEach(world -> players.addAll(world.getPlayers()));
 
             for (ParticlesEntry entry : particlesFeature.entries()) {
-                for (Player player : players) {
+                for (Player player : players.stream().filter(x -> !seasonDataProvider.getPlayersDisabledParticles().contains(x.getName())).toList()) {
                     player.spawnParticle(entry.particle(),
                                          player.getLocation(),
                                          random.nextInt(entry.minSpawnAmount(), entry.maxSpawnAmount()+1),

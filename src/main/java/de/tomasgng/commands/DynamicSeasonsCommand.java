@@ -8,6 +8,7 @@ import de.tomasgng.utils.PluginLogger;
 import de.tomasgng.utils.PluginUpdater;
 import de.tomasgng.utils.config.dataproviders.ConfigDataProvider;
 import de.tomasgng.utils.config.dataproviders.MessageDataProvider;
+import de.tomasgng.utils.config.dataproviders.SeasonDataProvider;
 import de.tomasgng.utils.enums.SeasonType;
 import de.tomasgng.utils.features.BossSpawningFeature;
 import de.tomasgng.utils.season.SeasonManager;
@@ -26,6 +27,7 @@ public class DynamicSeasonsCommand extends Command {
     private final BukkitAudiences adventure;
     private final ConfigDataProvider configDataProvider;
     private final MessageDataProvider messageDataProvider;
+    private final SeasonDataProvider seasonDataProvider;
     private final SeasonManager seasonManager;
     private final FeedbackHandler feedbackHandler;
 
@@ -41,12 +43,19 @@ public class DynamicSeasonsCommand extends Command {
         adventure = DynamicSeasons.getInstance().getAdventure();
         configDataProvider = DynamicSeasons.getInstance().getConfigDataProvider();
         messageDataProvider = DynamicSeasons.getInstance().getMessageDataProvider();
+        seasonDataProvider = DynamicSeasons.getInstance().getSeasonDataProvider();
         seasonManager = DynamicSeasons.getInstance().getSeasonManager();
         feedbackHandler = DynamicSeasons.getInstance().getFeedbackHandler();
     }
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+        this.sender = sender;
+        this.args = args;
+
+        if(checkDisableParticles())
+            return false;
+
         if(!sender.hasPermission(configDataProvider.getCommandPermission())) {
             adventure.sender(sender).sendMessage(messageDataProvider.getCommandNoPermission());
             return false;
@@ -56,9 +65,6 @@ public class DynamicSeasonsCommand extends Command {
             adventure.sender(sender).sendMessage(messageDataProvider.getCommandUsage());
             return false;
         }
-
-        this.sender = sender;
-        this.args = args;
 
         if(checkReload())
             return false;
@@ -80,6 +86,33 @@ public class DynamicSeasonsCommand extends Command {
 
         adventure.sender(sender).sendMessage(messageDataProvider.getCommandUsage());
         return false;
+    }
+
+    private boolean checkDisableParticles() {
+        if(args.length != 1)
+            return false;
+
+        String subcommand = args[0];
+
+        if(!subcommand.equalsIgnoreCase("disableparticles"))
+            return false;
+
+        if(!(sender instanceof Player player)) {
+            adventure.sender(sender).sendMessage(messageDataProvider.getCommandPlayerOnly());
+            return true;
+        }
+
+        List<String> disableParticlesList = seasonDataProvider.getPlayersDisabledParticles();
+
+        if(!disableParticlesList.contains(player.getName())) {
+            seasonDataProvider.disableParticlesForPlayer(player.getName());
+            adventure.player(player).sendMessage(messageDataProvider.getCommandDisableParticlesOn());
+        } else {
+            seasonDataProvider.enableParticlesForPlayer(player.getName());
+            adventure.player(player).sendMessage(messageDataProvider.getCommandDisableParticlesOff());
+        }
+
+        return true;
     }
 
     private boolean checkUpdate() {
