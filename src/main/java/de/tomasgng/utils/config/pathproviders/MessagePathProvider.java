@@ -44,6 +44,8 @@ public final class MessagePathProvider {
     public static ConfigPair COMMAND_FEEDBACK_SENDING = new ConfigPair("command.feedback.sending", "%prefix% <green>Sending feedback...");
     public static ConfigPair COMMAND_FEEDBACK_SUCCESS = new ConfigPair("command.feedback.success", "%prefix% <green>Your feedback has been sent. Thanks!");
     public static ConfigPair COMMAND_FEEDBACK_FAILURE = new ConfigPair("command.feedback.failure", "%prefix% <red>There was an error while sending your feedback. Check console for more information.");
+    public static ConfigPair COMMAND_DISABLEPARTICLES_ON = new ConfigPair("command.disableparticles.on", "%prefix% <green>You will <b>no longer</b> see particles from the season.");
+    public static ConfigPair COMMAND_DISABLEPARTICLES_OFF = new ConfigPair("command.disableparticles.off", "%prefix% <green>You <b>will see</b> particles from the season again.");
 
     @ConfigExclude(excludeComments = false)
     public static ConfigPair COMMENT_PREFIX = new ConfigPair("prefix",

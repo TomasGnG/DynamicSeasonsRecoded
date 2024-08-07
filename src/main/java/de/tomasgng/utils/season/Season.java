@@ -5,6 +5,7 @@ import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import de.tomasgng.DynamicSeasons;
 import de.tomasgng.utils.config.dataproviders.ConfigDataProvider;
 import de.tomasgng.utils.config.dataproviders.SeasonConfigDataProvider;
+import de.tomasgng.utils.config.dataproviders.SeasonDataProvider;
 import de.tomasgng.utils.enums.SeasonType;
 import de.tomasgng.utils.features.*;
 import de.tomasgng.utils.features.utils.*;
@@ -41,6 +42,7 @@ public class Season {
 
     private final ConfigDataProvider configDataProvider;
     private final SeasonConfigDataProvider seasonConfigDataProvider;
+    private final SeasonDataProvider seasonDataProvider;
     private final List<World> worlds = new ArrayList<>();
 
     private WeatherFeature weatherFeature;
@@ -62,6 +64,7 @@ public class Season {
         this.seasonType = seasonType;
         configDataProvider = DynamicSeasons.getInstance().getConfigDataProvider();
         seasonConfigDataProvider = DynamicSeasons.getInstance().getSeasonConfigDataProvider();
+        seasonDataProvider = DynamicSeasons.getInstance().getSeasonDataProvider();
     }
 
     public void init() {
@@ -399,7 +402,9 @@ public class Season {
                         .extra(entry.speed())
                         .offset(entry.offsetX(), entry.offsetY(), entry.offsetZ());
 
-                players.forEach(player -> particleBuilder.receivers(player).location(player.getLocation()).spawn());
+                players.stream()
+                       .filter(x -> !seasonDataProvider.getPlayersDisabledParticles().contains(x.getName()))
+                       .forEach(player -> particleBuilder.receivers(player).location(player.getLocation()).spawn());
             }
         }, particlesFeature.spawnTimeInTicks(), particlesFeature.spawnTimeInTicks());
     }

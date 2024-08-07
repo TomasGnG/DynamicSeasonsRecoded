@@ -4,10 +4,11 @@ import de.tomasgng.DynamicSeasons;
 import de.tomasgng.utils.config.SeasonDataManager;
 import de.tomasgng.utils.enums.SeasonType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-import static de.tomasgng.utils.config.pathproviders.SeasonDataPathProvider.SEASON_CURRENT_SEASON;
-import static de.tomasgng.utils.config.pathproviders.SeasonDataPathProvider.SEASON_REMAINING_DURATION;
+import static de.tomasgng.utils.config.pathproviders.SeasonDataPathProvider.*;
 
 public class SeasonDataProvider {
 
@@ -36,5 +37,25 @@ public class SeasonDataProvider {
 
     public void setCurrentSeason(SeasonType newSeasonType) {
         manager.set(SEASON_CURRENT_SEASON, newSeasonType.name());
+    }
+
+    public List<String> getPlayersDisabledParticles() {
+        return manager.getStringListValue(DISABLED_PARTICLES_LIST);
+    }
+
+    public void enableParticlesForPlayer(String playerName) {
+        ArrayList<String> disabledParticles = new ArrayList<>(manager.getStringListValue(DISABLED_PARTICLES_LIST));
+
+        disabledParticles.remove(playerName);
+
+        manager.set(DISABLED_PARTICLES_LIST, disabledParticles);
+    }
+
+    public void disableParticlesForPlayer(String playerName) {
+        ArrayList<String> disabledParticles = new ArrayList<>(manager.getStringListValue(DISABLED_PARTICLES_LIST));
+
+        disabledParticles.add(playerName);
+
+        manager.set(DISABLED_PARTICLES_LIST, disabledParticles);
     }
 }

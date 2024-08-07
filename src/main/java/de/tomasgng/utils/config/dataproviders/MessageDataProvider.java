@@ -140,6 +140,14 @@ public class MessageDataProvider {
         return replaceAllPlaceholders(manager.getComponentValue(COMMAND_FEEDBACK_FAILURE));
     }
 
+    public Component getCommandDisableParticlesOn() {
+        return replaceAllPlaceholders(manager.getComponentValue(COMMAND_DISABLEPARTICLES_ON));
+    }
+
+    public Component getCommandDisableParticlesOff() {
+        return replaceAllPlaceholders(manager.getComponentValue(COMMAND_DISABLEPARTICLES_OFF));
+    }
+
     private Component replaceAllPlaceholders(Component component) {
         String serialized = mm.serialize(component);
 
