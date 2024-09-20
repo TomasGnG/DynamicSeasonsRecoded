@@ -338,6 +338,46 @@ public class SeasonConfigDataProvider {
         return new BossSpawningFeature(isEnabled, parsedEntries);
     }
 
+    public CommandExecutionFeature getCommandExecutionFeature() {
+        String selectedSeason = "[" + config.getCurrentSelectedSeasonType().name() + "] ";
+
+        boolean featureEnabled = config.getBooleanValue(COMMAND_EXECUTION_ENABLED);
+        List<String> onSeasonChangePlayerCommands = config.getStringListValue(new ConfigPair(COMMAND_EXECUTION_ON_SEASON_CHANGE_BASE.getPath() + "." + COMMAND_EXECUTION_PLAYER_COMMANDS_BASE.getPath()));
+        List<String> onSeasonChangeConsoleCommands = config.getStringListValue(new ConfigPair(COMMAND_EXECUTION_ON_SEASON_CHANGE_BASE.getPath() + "." + COMMAND_EXECUTION_CONSOLE_COMMANDS_BASE.getPath()));
+
+        List<CommandExecutionEntry> parsedEntries = new ArrayList<>();
+        var sectionEntries = config.getKeysFromBase(new ConfigPair(COMMAND_EXECUTION_AFTER_SEASON_CHANGE_BASE.getPath()));
+
+        for (String sectionEntry : sectionEntries) {
+            String entryPath = COMMAND_EXECUTION_AFTER_SEASON_CHANGE_BASE.getPath() + "." + sectionEntry;
+
+            boolean entryEnabled = config.getBooleanValue(new ConfigPair(entryPath + "." + COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENABLED_BASE.getPath()));
+            int runAfterMin = config.getIntegerValue(new ConfigPair(entryPath + "." + COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENTRY_RUN_AFTER_MIN_BASE.getPath(), -1));
+            int runAfterMax = config.getIntegerValue(new ConfigPair(entryPath + "." + COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENTRY_RUN_AFTER_MAX_BASE.getPath(), -1));
+            List<String> entryPlayerCommands = config.getStringListValue(new ConfigPair(entryPath + "." + COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENTRY_COMMANDS_BASE.getPath() + "." + COMMAND_EXECUTION_PLAYER_COMMANDS_BASE.getPath()));
+            List<String> entryConsoleCommands = config.getStringListValue(new ConfigPair(entryPath + "." + COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENTRY_COMMANDS_BASE.getPath() + "." + COMMAND_EXECUTION_CONSOLE_COMMANDS_BASE.getPath()));
+
+            if(runAfterMin < 0) {
+                logger.warn(selectedSeason + "The number must be positive. Path in config: " + entryPath + "." + COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENTRY_RUN_AFTER_MIN_BASE.getPath());
+                continue;
+            }
+
+            if(runAfterMax < 0) {
+                logger.warn(selectedSeason + "The number must be positive. Path in config: " + entryPath + "." + COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENTRY_RUN_AFTER_MIN_BASE.getPath());
+                continue;
+            }
+
+            if(runAfterMin > runAfterMax) {
+                logger.warn(selectedSeason + "The minimum number cannot be higher than the maximum. Path in config: " + entryPath + "." + COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENTRY_RUN_AFTER_MIN_BASE.getPath());
+                continue;
+            }
+
+            parsedEntries.add(new CommandExecutionEntry(entryEnabled, runAfterMin, runAfterMax, entryPlayerCommands, entryConsoleCommands));
+        }
+
+        return new CommandExecutionFeature(featureEnabled, onSeasonChangePlayerCommands, onSeasonChangeConsoleCommands, parsedEntries);
+    }
+
     private Map<Attribute, Double> parseAttributes(String base, Map<String, Object> rawAttributes) {
         Map<Attribute, Double> attributes = new HashMap<>();
 

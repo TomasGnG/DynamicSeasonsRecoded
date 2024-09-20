@@ -283,7 +283,7 @@ public class DynamicSeasonsCommand extends Command {
             return List.of();
 
         if(args.length == 1)
-            return List.of("setseason", "setremainingtime", "reload", "update", "spawnboss", "report");
+            return List.of("setseason", "setremainingtime", "reload", "update", "spawnboss", "report", "disableparticles");
 
         if(args.length == 2) {
             String arg = args[0];

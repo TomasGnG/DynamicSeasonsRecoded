@@ -206,4 +206,42 @@ public final class SeasonConfigPathProvider {
     public static ConfigPair COMMENT_BOSS_SPAWNING_ENTRIES_SPAWNCHANCE = new ConfigPair(BOSS_SPAWNING_ENTRIES_EXAMPLE_SPAWNCHANCE.getPath(), null, "The chance that this boss will spawn", "0 - 100");
     @ConfigExclude(excludeComments = false)
     public static ConfigPair COMMENT_BOSS_SPAWNING_ENTRIES_ITEMINHAND_ENABLED = new ConfigPair(BOSS_SPAWNING_ENTRIES_EXAMPLE_ITEMINHAND_ENABLED.getPath(), null, "false = boss wont have any item in his hand");
+
+    public static ConfigPair COMMAND_EXECUTION_ENABLED = new ConfigPair("commandExecution.enabled", true);
+    @ConfigExclude
+    public static ConfigPair COMMAND_EXECUTION_ON_SEASON_CHANGE_BASE = new ConfigPair("commandExecution.events.onSeasonChange");
+    @ConfigExclude
+    public static ConfigPair COMMAND_EXECUTION_PLAYER_COMMANDS_BASE = new ConfigPair("p");
+    @ConfigExclude
+    public static ConfigPair COMMAND_EXECUTION_CONSOLE_COMMANDS_BASE = new ConfigPair("c");
+    public static ConfigPair COMMAND_EXECUTION_ON_SEASON_CHANGE_EXAMPLE_PLAYER_COMMAND = new ConfigPair(COMMAND_EXECUTION_ON_SEASON_CHANGE_BASE.getPath() + "." + COMMAND_EXECUTION_PLAYER_COMMANDS_BASE.getPath(), List.of("say Im %player%", "say this is the second command"));
+    public static ConfigPair COMMAND_EXECUTION_ON_SEASON_CHANGE_EXAMPLE_CONSOLE_COMMAND = new ConfigPair(COMMAND_EXECUTION_ON_SEASON_CHANGE_BASE.getPath() + "." + COMMAND_EXECUTION_CONSOLE_COMMANDS_BASE.getPath(), List.of("say Im the console", "say this is the second command"));
+    @ConfigExclude
+    public static ConfigPair COMMAND_EXECUTION_AFTER_SEASON_CHANGE_BASE = new ConfigPair("commandExecution.events.afterSeasonChange");
+    @ConfigExclude
+    public static ConfigPair COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENABLED_BASE = new ConfigPair("enabled");
+    @ConfigExclude
+    public static ConfigPair COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENTRY_RUN_AFTER_MIN_BASE = new ConfigPair("runAfter.min");
+    @ConfigExclude
+    public static ConfigPair COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENTRY_RUN_AFTER_MAX_BASE = new ConfigPair("runAfter.max");
+    @ConfigExclude
+    public static ConfigPair COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENTRY_COMMANDS_BASE = new ConfigPair("commands");
+    public static ConfigPair COMMAND_EXECUTION_AFTER_SEASON_CHANGE_EXAMPLE_GROUP1_ENABLED = new ConfigPair(
+            COMMAND_EXECUTION_AFTER_SEASON_CHANGE_BASE.getPath() + ".group1." + COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENABLED_BASE.getPath(), true);
+    public static ConfigPair COMMAND_EXECUTION_AFTER_SEASON_CHANGE_EXAMPLE_GROUP1_RUN_AFTER_MIN = new ConfigPair(
+            COMMAND_EXECUTION_AFTER_SEASON_CHANGE_BASE.getPath() + ".group1." + COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENTRY_RUN_AFTER_MIN_BASE.getPath(), 5, "Here you can set the min and max value of the generated value.", "It will run after the generated value in seconds has elapsed.");
+    public static ConfigPair COMMAND_EXECUTION_AFTER_SEASON_CHANGE_EXAMPLE_GROUP1_RUN_AFTER_MAX = new ConfigPair(
+            COMMAND_EXECUTION_AFTER_SEASON_CHANGE_BASE.getPath() + ".group1." + COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENTRY_RUN_AFTER_MAX_BASE.getPath(), 10);
+    public static ConfigPair COMMAND_EXECUTION_AFTER_SEASON_CHANGE_EXAMPLE_GROUP1_COMMANDS_1 = new ConfigPair(
+            COMMAND_EXECUTION_AFTER_SEASON_CHANGE_BASE.getPath() + ".group1." + COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENTRY_COMMANDS_BASE.getPath() + "." + COMMAND_EXECUTION_PLAYER_COMMANDS_BASE.getPath(), List.of("say Im %player%", "say this is the second command"));
+    public static ConfigPair COMMAND_EXECUTION_AFTER_SEASON_CHANGE_EXAMPLE_GROUP1_COMMANDS_2 = new ConfigPair(
+            COMMAND_EXECUTION_AFTER_SEASON_CHANGE_BASE.getPath() + ".group1." + COMMAND_EXECUTION_AFTER_SEASON_CHANGE_ENTRY_COMMANDS_BASE.getPath() + "." + COMMAND_EXECUTION_CONSOLE_COMMANDS_BASE.getPath(), List.of("say Im the console", "say this is the second command"));
+
+    @ConfigExclude(excludeComments = false)
+    public static ConfigPair COMMENT_COMMAND_EXECUTION_ON_SEASON_CHANGE = new ConfigPair(COMMAND_EXECUTION_ON_SEASON_CHANGE_BASE.getPath(), null, "Add commands when the season changes",
+                                                                                         "p -> all players will run this command",
+                                                                                         "c -> the console will run this command",
+                                                                                         "",
+                                                                                         "%player% will be replaced with the players name.",
+                                                                                         "You can add commands to the events without a limit");
 }

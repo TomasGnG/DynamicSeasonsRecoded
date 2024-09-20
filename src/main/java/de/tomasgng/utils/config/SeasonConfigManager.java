@@ -220,6 +220,22 @@ public class SeasonConfigManager {
         }
     }
 
+    public SeasonType getCurrentSelectedSeasonType() {
+        if(currentConfigFile.equals(summerConfigFile))
+            return SeasonType.SUMMER;
+
+        if(currentConfigFile.equals(fallConfigFile))
+            return SeasonType.FALL;
+
+        if(currentConfigFile.equals(winterConfigFile))
+            return SeasonType.WINTER;
+
+        if(currentConfigFile.equals(springConfigFile))
+            return SeasonType.SPRING;
+
+        return null;
+    }
+
     private void set(ConfigPair pair) {
         cfg.set(pair.getPath(), pair.getValue());
 

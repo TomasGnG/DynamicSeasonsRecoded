@@ -5,7 +5,6 @@ import de.tomasgng.feedback.FeedbackHandler;
 import de.tomasgng.listeners.*;
 import de.tomasgng.placeholders.PlaceholderManager;
 import de.tomasgng.utils.Metrics;
-import de.tomasgng.utils.PluginUpdater;
 import de.tomasgng.utils.VersionChecker;
 import de.tomasgng.utils.config.ConfigManager;
 import de.tomasgng.utils.config.MessageManager;
@@ -50,19 +49,10 @@ public final class DynamicSeasons extends JavaPlugin {
     public void onEnable() {
         INSTANCE = this;
 
-        checkIfServerTypeIsPaper();
         init();
 
         VersionChecker.getInstance().isLatestVersion(false);
         placeholderManager.registerAll();
-    }
-
-    private void checkIfServerTypeIsPaper() {
-        try {
-            Class.forName("com.destroystokyo.paper.event.player.PlayerJumpEvent");
-            getLogger().warning("This version is for spigot servers.");
-            getLogger().warning("Here you can download the paper version: " + PluginUpdater.getInstance().getDownloadUrl().replace("spigot", "paper"));
-        } catch (NoClassDefFoundError | ClassNotFoundException ignored) {}
     }
 
     @Override

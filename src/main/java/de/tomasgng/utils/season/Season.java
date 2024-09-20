@@ -53,6 +53,7 @@ public class Season {
     private LootDropsFeature lootDropsFeature;
     private ParticlesFeature particlesFeature;
     private BossSpawningFeature bossSpawningFeature;
+    private CommandExecutionFeature commandExecutionFeature;
 
     private BukkitTask potionEffectsTimer;
     private BukkitTask particlesTimer;
@@ -75,6 +76,7 @@ public class Season {
 
         handlePotionEffects();
         handleParticles();
+        commandExecutionFeature.initialize();
     }
 
     private void initWorlds() {
@@ -102,6 +104,7 @@ public class Season {
         lootDropsFeature = seasonConfigDataProvider.getLootDropsFeature();
         particlesFeature = seasonConfigDataProvider.getParticlesFeature();
         bossSpawningFeature = seasonConfigDataProvider.getBossSpawningFeature();
+        commandExecutionFeature = seasonConfigDataProvider.getCommandExecutionFeature();
     }
 
     public void handleWeatherChangeEvent(WeatherChangeEvent e) {

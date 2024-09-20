@@ -96,6 +96,9 @@ public class SeasonManager {
 
     private void initSeasonFeatures() {
         seasons.forEach(x -> {
+            if(x.getSeasonType() == currentSeason.getSeasonType())
+                return;
+
             seasonConfigManager.setConfigFile(x.getSeasonType());
             x.initFeatures();
         });
