@@ -48,7 +48,7 @@ public record CommandExecutionFeature(boolean enabled, List<String> onSeasonChan
         for (CommandExecutionEntry entry : enabledEntries) {
             int generatedNumber = random.nextInt(entry.runAfterMin(), entry.runAfterMax()+1);
 
-            Bukkit.getScheduler().runTaskLaterAsynchronously(DynamicSeasons.getInstance(), () -> {
+            Bukkit.getScheduler().runTaskLater(DynamicSeasons.getInstance(), () -> {
                 Bukkit.getScheduler().runTask(DynamicSeasons.getInstance(), entry::executeCommands);
             }, generatedNumber * 20L);
         }
