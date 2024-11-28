@@ -53,7 +53,7 @@ public class SeasonManager {
 
     public void startSeasonTimer() {
         Bukkit.getScheduler()
-              .runTaskTimerAsynchronously(DynamicSeasons.getInstance(),
+              .runTaskTimer(DynamicSeasons.getInstance(),
                                           this::decreaseRemainingTime,
                                           2 * 20L,
                                           20L);

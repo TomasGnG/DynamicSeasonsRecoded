@@ -10,7 +10,7 @@ import java.util.Random;
 
 public record CommandExecutionFeature(boolean enabled, List<String> onSeasonChangePlayerCommands, List<String> onSeasonChangeConsoleCommands, List<CommandExecutionEntry> runAfterEntries) {
 
-    private static Random random = new Random();
+    private static final Random random = new Random();
 
     public void initialize() {
         if (!enabled)
