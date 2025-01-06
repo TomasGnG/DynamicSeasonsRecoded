@@ -22,7 +22,7 @@ public class PluginUpdater {
     private static PluginUpdater instance;
 
     private final MessageDataProvider messageDataProvider = DynamicSeasons.getInstance().getMessageDataProvider();
-    private final String downloadUrl = "https://tomasgng.dev/plugins/dynamicseasons/download/DynamicSeasons-" + VersionChecker.getInstance().getUrlVersion() + "-spigot.jar";
+    private final String downloadUrl = "https://tomasgng.dev/plugins/dynamicseasons/download/DynamicSeasons.jar";
 
     public void update(@Nullable CommandSender sender) {
         if(VersionChecker.getInstance().isLatestVersion(true)) {
@@ -34,16 +34,15 @@ public class PluginUpdater {
         if(sender != null)
             adventure().sender(sender).sendMessage(messageDataProvider.getCommandUpdateStarted());
 
-        String latestVersion = VersionChecker.getInstance().getUrlVersion();
-        download(sender, latestVersion);
+        download(sender);
     }
 
-    private void download(@Nullable CommandSender sender, String latestVersion) {
+    private void download(@Nullable CommandSender sender) {
         Bukkit.getScheduler().runTask(DynamicSeasons.getInstance(), scheduledTask -> {
             if(!Bukkit.getUpdateFolderFile().exists())
                 Bukkit.getUpdateFolderFile().mkdirs();
 
-            File downloadFile = Path.of(Bukkit.getServer().getUpdateFolderFile().getPath(), "DynamicSeasons-" + latestVersion + "-spigot.jar").toFile();
+            File downloadFile = Path.of(Bukkit.getServer().getUpdateFolderFile().getPath(), "DynamicSeasons.jar").toFile();
 
             try (InputStream in = new URI(downloadUrl).toURL().openStream()) {
                 Files.copy(in, downloadFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -72,9 +71,5 @@ public class PluginUpdater {
 
     private BukkitAudiences adventure() {
         return DynamicSeasons.getInstance().getAdventure();
-    }
-
-    public String getDownloadUrl() {
-        return downloadUrl;
     }
 }

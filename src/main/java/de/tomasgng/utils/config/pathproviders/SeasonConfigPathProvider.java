@@ -8,6 +8,8 @@ import java.util.List;
 
 public final class SeasonConfigPathProvider {
     public static ConfigPair WEATHER_ENABLED = new ConfigPair("weather.enabled", true);
+    public static ConfigPair WEATHER_CHANGE_CHANCE = new ConfigPair("weather.changeChance", 100);
+    public static ConfigPair WEATHER_CHANGE_RAIN_TO_SNOW = new ConfigPair("weather.rainToSnowInWinter", true);
     public static ConfigPair WEATHER_TYPE_CLEAR_ENABLED = new ConfigPair("weather.weatherType.clear", true);
     public static ConfigPair WEATHER_TYPE_STORM_ENABLED = new ConfigPair("weather.weatherType.storm", true);
     public static ConfigPair WEATHER_TYPE_THUNDER_ENABLED = new ConfigPair("weather.weatherType.thunder",

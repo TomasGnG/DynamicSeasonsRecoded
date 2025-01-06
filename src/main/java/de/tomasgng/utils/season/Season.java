@@ -114,6 +114,11 @@ public class Season {
         if(!weatherFeature.isEnabled())
             return;
 
+        if(random.nextInt(0, 101) > weatherFeature.changeChance()) {
+            e.setCancelled(true);
+            return;
+        }
+
         if(e.toWeatherState())
             e.setCancelled(!weatherFeature.isStormWeatherEnabled());
 

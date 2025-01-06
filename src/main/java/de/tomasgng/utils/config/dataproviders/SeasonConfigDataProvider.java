@@ -28,11 +28,13 @@ public class SeasonConfigDataProvider {
 
     public WeatherFeature getWeatherFeature() {
         boolean isEnabled = config.getBooleanValue(WEATHER_ENABLED);
+        int changeChance = config.getIntegerValue(WEATHER_CHANGE_CHANCE);
+        boolean rainToSnowInWinter = config.getBooleanValue(WEATHER_CHANGE_RAIN_TO_SNOW);
         boolean clearWeatherEnabled = config.getBooleanValue(WEATHER_TYPE_CLEAR_ENABLED);
         boolean stormWeatherEnabled = config.getBooleanValue(WEATHER_TYPE_STORM_ENABLED);
         boolean thunderWeatherEnabled = config.getBooleanValue(WEATHER_TYPE_THUNDER_ENABLED);
 
-        return new WeatherFeature(isEnabled, clearWeatherEnabled, stormWeatherEnabled, thunderWeatherEnabled);
+        return new WeatherFeature(isEnabled, changeChance, rainToSnowInWinter, clearWeatherEnabled, stormWeatherEnabled, thunderWeatherEnabled);
     }
 
     public RandomTickSpeedFeature getRandomTickSpeedFeature() {
