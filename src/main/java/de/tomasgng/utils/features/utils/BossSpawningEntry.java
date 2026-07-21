@@ -76,9 +76,9 @@ public final class BossSpawningEntry {
 
         attributes.forEach((attribute, value) -> {
             if (entity.getAttribute(attribute) != null)
-                entity.getAttribute(attribute).setBaseValue(attribute == Attribute.GENERIC_MAX_HEALTH ? value*2 : value);
+                entity.getAttribute(attribute).setBaseValue(attribute == Attribute.MAX_HEALTH ? value*2 : value);
 
-            if (attribute == Attribute.GENERIC_MAX_HEALTH)
+            if (attribute == Attribute.MAX_HEALTH)
                 entity.setHealth(value*2);
         });
 
@@ -97,7 +97,7 @@ public final class BossSpawningEntry {
 
         Bukkit.getScheduler().runTask(DynamicSeasons.getInstance(), () -> {
             String health = df.format(entity.getHealth() > 0 ? entity.getHealth() / 2 : 0);
-            String maxHealth = df.format(entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() / 2);
+            String maxHealth = df.format(entity.getAttribute(Attribute.MAX_HEALTH).getValue() / 2);
 
             String replaced = mm.serialize(displayname)
                                 .replaceAll("%health%", health)

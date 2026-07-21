@@ -124,7 +124,7 @@ public class DynamicSeasonsCommand extends Command {
         if(!arg.equalsIgnoreCase("update"))
             return false;
 
-        PluginUpdater.getInstance().update(sender);
+        // PluginUpdater.getInstance().update(sender);
         return true;
     }
 
@@ -280,7 +280,7 @@ public class DynamicSeasonsCommand extends Command {
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
         if(!sender.hasPermission(configDataProvider.getCommandPermission()))
-            return List.of();
+            return List.of("disableparticles");
 
         if(args.length == 1)
             return List.of("setseason", "setremainingtime", "reload", "update", "spawnboss", "report", "disableparticles");
