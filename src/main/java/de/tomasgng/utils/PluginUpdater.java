@@ -7,7 +7,6 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +23,7 @@ public class PluginUpdater {
     private final MessageDataProvider messageDataProvider = DynamicSeasons.getInstance().getMessageDataProvider();
     private final String downloadUrl = "https://tomasgng.dev/plugins/dynamicseasons/download/DynamicSeasons.jar";
 
-    public void update(@Nullable CommandSender sender) {
+    public void update(CommandSender sender) {
         if(VersionChecker.getInstance().isLatestVersion(true)) {
             if(sender != null)
                 adventure().sender(sender).sendMessage(messageDataProvider.getCommandUpdateNoUpdatesAvailable());
@@ -37,7 +36,7 @@ public class PluginUpdater {
         download(sender);
     }
 
-    private void download(@Nullable CommandSender sender) {
+    private void download(CommandSender sender) {
         Bukkit.getScheduler().runTask(DynamicSeasons.getInstance(), scheduledTask -> {
             if(!Bukkit.getUpdateFolderFile().exists())
                 Bukkit.getUpdateFolderFile().mkdirs();

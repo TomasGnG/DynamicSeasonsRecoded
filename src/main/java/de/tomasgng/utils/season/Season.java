@@ -230,7 +230,7 @@ public class Season {
             if(entity.getAttribute(key) != null)
                 entity.getAttribute(key).setBaseValue(value);
 
-            if(key == Attribute.GENERIC_MAX_HEALTH)
+            if(key == Attribute.MAX_HEALTH)
                 entity.setHealth(value);
         });
     }
