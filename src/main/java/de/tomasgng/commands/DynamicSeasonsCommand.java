@@ -5,7 +5,6 @@ import de.tomasgng.feedback.Feedback;
 import de.tomasgng.feedback.FeedbackHandler;
 import de.tomasgng.feedback.FeedbackType;
 import de.tomasgng.utils.PluginLogger;
-import de.tomasgng.utils.PluginUpdater;
 import de.tomasgng.utils.config.dataproviders.ConfigDataProvider;
 import de.tomasgng.utils.config.dataproviders.MessageDataProvider;
 import de.tomasgng.utils.config.dataproviders.SeasonDataProvider;
@@ -81,8 +80,8 @@ public class DynamicSeasonsCommand extends Command {
         if(checkSpawnBoss())
             return false;
 
-        if(checkReport())
-            return false;
+        // if(checkReport())
+        //    return false;
 
         adventure.sender(sender).sendMessage(messageDataProvider.getCommandUsage());
         return false;
