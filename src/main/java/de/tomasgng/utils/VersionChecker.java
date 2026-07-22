@@ -1,6 +1,8 @@
 package de.tomasgng.utils;
 
-import de.tomasgng.DynamicSeasons;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.apache.commons.io.IOUtils;
@@ -17,15 +19,17 @@ import java.util.logging.Logger;
 
 public final class VersionChecker {
 
-    private static final VersionChecker INSTANCE = new VersionChecker();
+    private final Logger logger;
+    private final MiniMessage mm;
+    private final BukkitAudiences adventure;
+    private final String currentVersion;
 
-    private final Logger logger = DynamicSeasons.getInstance().getLogger();
-    private final MiniMessage mm = MiniMessage.miniMessage();
-
-    private final String currentVersion = DynamicSeasons.getInstance().getDescription().getVersion();
-
-    public static VersionChecker getInstance() {
-        return INSTANCE;
+    @Inject
+    public VersionChecker(Logger logger, MiniMessage mm, BukkitAudiences adventure, @Named("pluginVersion") String currentVersion) {
+        this.logger = logger;
+        this.mm = mm;
+        this.adventure = adventure;
+        this.currentVersion = currentVersion;
     }
 
     public boolean isLatestVersion(boolean silent) {
@@ -93,6 +97,6 @@ public final class VersionChecker {
     }
 
     private void sendConsoleMessage(Component component) {
-        DynamicSeasons.getInstance().getAdventure().sender(Bukkit.getConsoleSender()).sendMessage(component);
+        adventure.sender(Bukkit.getConsoleSender()).sendMessage(component);
     }
 }

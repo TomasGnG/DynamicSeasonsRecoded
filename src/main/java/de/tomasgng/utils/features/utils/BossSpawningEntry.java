@@ -16,6 +16,8 @@ import java.util.*;
 
 public final class BossSpawningEntry {
 
+    private final DynamicSeasons plugin;
+
     public BossSpawningEntry(String entryName,
                              boolean enabled,
                              EntityType mobType,
@@ -24,7 +26,8 @@ public final class BossSpawningEntry {
                              BossSpawningItemInHandEntry itemInHand,
                              Map<Attribute, Double> attributes,
                              boolean lootDropsEnabled,
-                             List<LootDropsEntry> lootDrops) {
+                             List<LootDropsEntry> lootDrops,
+                             DynamicSeasons plugin) {
         df.setRoundingMode(RoundingMode.HALF_DOWN);
         this.entryName = entryName;
         this.enabled = enabled;
@@ -35,6 +38,7 @@ public final class BossSpawningEntry {
         this.attributes = attributes;
         this.lootDropsEnabled = lootDropsEnabled;
         this.lootDrops = lootDrops;
+        this.plugin = plugin;
     }
 
     public BossSpawningEntry(BossSpawningEntry other) {
@@ -48,6 +52,7 @@ public final class BossSpawningEntry {
         this.attributes = other.attributes;
         this.lootDropsEnabled = other.lootDropsEnabled;
         this.lootDrops = other.lootDrops;
+        this.plugin = other.plugin;
     }
 
     private static final Random random = new Random();
@@ -68,7 +73,7 @@ public final class BossSpawningEntry {
 
     public void setEntity(LivingEntity entity) {
         this.entity = entity;
-        Bukkit.getScheduler().runTask(DynamicSeasons.getInstance(), this::applyCustomizations);
+        Bukkit.getScheduler().runTask(plugin, this::applyCustomizations);
     }
 
     public void applyCustomizations() {
@@ -95,7 +100,7 @@ public final class BossSpawningEntry {
         if (displayname == null)
             return;
 
-        Bukkit.getScheduler().runTask(DynamicSeasons.getInstance(), () -> {
+        Bukkit.getScheduler().runTask(plugin, () -> {
             String health = df.format(entity.getHealth() > 0 ? entity.getHealth() / 2 : 0);
             String maxHealth = df.format(entity.getAttribute(Attribute.MAX_HEALTH).getValue() / 2);
 

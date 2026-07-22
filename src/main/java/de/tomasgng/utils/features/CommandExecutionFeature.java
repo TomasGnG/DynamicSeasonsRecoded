@@ -12,12 +12,12 @@ public record CommandExecutionFeature(boolean enabled, List<String> onSeasonChan
 
     private static final Random random = new Random();
 
-    public void initialize() {
+    public void initialize(DynamicSeasons plugin) {
         if (!enabled)
             return;
 
         executeCommands();
-        startRunAfterEntries();
+        startRunAfterEntries(plugin);
     }
 
     private void executeCommands() {
@@ -42,14 +42,14 @@ public record CommandExecutionFeature(boolean enabled, List<String> onSeasonChan
         }
     }
 
-    private void startRunAfterEntries() {
+    private void startRunAfterEntries(DynamicSeasons plugin) {
         List<CommandExecutionEntry> enabledEntries = runAfterEntries.stream().filter(CommandExecutionEntry::enabled).toList();
 
         for (CommandExecutionEntry entry : enabledEntries) {
             int generatedNumber = random.nextInt(entry.runAfterMin(), entry.runAfterMax()+1);
 
-            Bukkit.getScheduler().runTaskLater(DynamicSeasons.getInstance(), () -> {
-                Bukkit.getScheduler().runTask(DynamicSeasons.getInstance(), entry::executeCommands);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                Bukkit.getScheduler().runTask(plugin, entry::executeCommands);
             }, generatedNumber * 20L);
         }
     }

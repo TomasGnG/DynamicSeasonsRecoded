@@ -1,10 +1,10 @@
 package de.tomasgng.commands;
 
-import de.tomasgng.DynamicSeasons;
+import com.google.inject.Inject;
 import de.tomasgng.feedback.Feedback;
 import de.tomasgng.feedback.FeedbackHandler;
 import de.tomasgng.feedback.FeedbackType;
-import de.tomasgng.utils.PluginLogger;
+import de.tomasgng.interfaces.IPluginLogger;
 import de.tomasgng.utils.config.dataproviders.ConfigDataProvider;
 import de.tomasgng.utils.config.dataproviders.MessageDataProvider;
 import de.tomasgng.utils.config.dataproviders.SeasonDataProvider;
@@ -29,22 +29,31 @@ public class DynamicSeasonsCommand extends Command {
     private final SeasonDataProvider seasonDataProvider;
     private final SeasonManager seasonManager;
     private final FeedbackHandler feedbackHandler;
+    private final IPluginLogger pluginLogger;
 
     private CommandSender sender;
     private String[] args;
 
-    public DynamicSeasonsCommand() {
-        super(DynamicSeasons.getInstance().getConfigDataProvider().getCommandName(),
-                DynamicSeasons.getInstance().getConfigDataProvider().getCommandDescription(),
+    @Inject
+    public DynamicSeasonsCommand(BukkitAudiences adventure,
+                                 ConfigDataProvider configDataProvider,
+                                 MessageDataProvider messageDataProvider,
+                                 SeasonDataProvider seasonDataProvider,
+                                 SeasonManager seasonManager,
+                                 FeedbackHandler feedbackHandler,
+                                 IPluginLogger pluginLogger) {
+        super(configDataProvider.getCommandName(),
+                configDataProvider.getCommandDescription(),
                 "",
-                DynamicSeasons.getInstance().getConfigDataProvider().getCommandAliases());
+                configDataProvider.getCommandAliases());
 
-        adventure = DynamicSeasons.getInstance().getAdventure();
-        configDataProvider = DynamicSeasons.getInstance().getConfigDataProvider();
-        messageDataProvider = DynamicSeasons.getInstance().getMessageDataProvider();
-        seasonDataProvider = DynamicSeasons.getInstance().getSeasonDataProvider();
-        seasonManager = DynamicSeasons.getInstance().getSeasonManager();
-        feedbackHandler = DynamicSeasons.getInstance().getFeedbackHandler();
+        this.adventure = adventure;
+        this.configDataProvider = configDataProvider;
+        this.messageDataProvider = messageDataProvider;
+        this.seasonDataProvider = seasonDataProvider;
+        this.seasonManager = seasonManager;
+        this.feedbackHandler = feedbackHandler;
+        this.pluginLogger = pluginLogger;
     }
 
     @Override
@@ -136,12 +145,12 @@ public class DynamicSeasonsCommand extends Command {
         if(!arg.equalsIgnoreCase("reload"))
             return false;
 
-        PluginLogger.getInstance().clearLoggedMessages();
+        pluginLogger.clearLoggedMessages();
         seasonManager.reload();
         adventure.sender(sender).sendMessage(messageDataProvider.getCommandReloadSuccess());
 
         if(configDataProvider.isCommandShowWarningsOnReloadEnabled()) {
-            PluginLogger.getInstance().showLoggedMessages(sender);
+            pluginLogger.showLoggedMessages(sender);
         }
 
         return true;

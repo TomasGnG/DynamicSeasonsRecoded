@@ -1,6 +1,7 @@
 package de.tomasgng.utils;
 
 import de.tomasgng.DynamicSeasons;
+import de.tomasgng.interfaces.IPluginLogger;
 import de.tomasgng.utils.config.dataproviders.MessageDataProvider;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
@@ -18,26 +19,40 @@ import java.nio.file.StandardCopyOption;
 
 public class PluginUpdater {
 
-    private static PluginUpdater instance;
-
-    private final MessageDataProvider messageDataProvider = DynamicSeasons.getInstance().getMessageDataProvider();
+    private final DynamicSeasons plugin;
+    private final IPluginLogger pluginLogger;
+    private final MessageDataProvider messageDataProvider;
+    private final BukkitAudiences adventure;
+    private final VersionChecker versionChecker;
     private final String downloadUrl = "https://tomasgng.dev/plugins/dynamicseasons/download/DynamicSeasons.jar";
 
+    public PluginUpdater(DynamicSeasons plugin,
+                         IPluginLogger pluginLogger,
+                         MessageDataProvider messageDataProvider,
+                         BukkitAudiences adventure,
+                         VersionChecker versionChecker) {
+        this.plugin = plugin;
+        this.pluginLogger = pluginLogger;
+        this.messageDataProvider = messageDataProvider;
+        this.adventure = adventure;
+        this.versionChecker = versionChecker;
+    }
+
     public void update(CommandSender sender) {
-        if(VersionChecker.getInstance().isLatestVersion(true)) {
+        if(versionChecker.isLatestVersion(true)) {
             if(sender != null)
-                adventure().sender(sender).sendMessage(messageDataProvider.getCommandUpdateNoUpdatesAvailable());
+                adventure.sender(sender).sendMessage(messageDataProvider.getCommandUpdateNoUpdatesAvailable());
             return;
         }
 
         if(sender != null)
-            adventure().sender(sender).sendMessage(messageDataProvider.getCommandUpdateStarted());
+            adventure.sender(sender).sendMessage(messageDataProvider.getCommandUpdateStarted());
 
         download(sender);
     }
 
     private void download(CommandSender sender) {
-        Bukkit.getScheduler().runTask(DynamicSeasons.getInstance(), scheduledTask -> {
+        Bukkit.getScheduler().runTask(plugin, scheduledTask -> {
             if(!Bukkit.getUpdateFolderFile().exists())
                 Bukkit.getUpdateFolderFile().mkdirs();
 
@@ -52,23 +67,12 @@ public class PluginUpdater {
                 if(sender != null)
                     sendMessage(sender, messageDataProvider.getCommandUpdateFailure());
 
-                PluginLogger.getInstance().error("Update failed: " + e);
+                pluginLogger.error("Update failed: " + e);
             }
         });
     }
 
     private void sendMessage(CommandSender sender, Component msg) {
-        Bukkit.getScheduler().runTask(DynamicSeasons.getInstance(), () -> adventure().sender(sender).sendMessage(msg));
-    }
-
-    public static PluginUpdater getInstance() {
-        if(instance == null)
-            instance = new PluginUpdater();
-
-        return instance;
-    }
-
-    private BukkitAudiences adventure() {
-        return DynamicSeasons.getInstance().getAdventure();
+        Bukkit.getScheduler().runTask(plugin, () -> adventure.sender(sender).sendMessage(msg));
     }
 }

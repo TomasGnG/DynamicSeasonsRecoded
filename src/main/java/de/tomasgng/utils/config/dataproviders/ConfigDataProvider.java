@@ -1,7 +1,7 @@
 package de.tomasgng.utils.config.dataproviders;
 
-import de.tomasgng.DynamicSeasons;
-import de.tomasgng.utils.PluginLogger;
+import com.google.inject.Inject;
+import de.tomasgng.interfaces.IPluginLogger;
 import de.tomasgng.utils.config.ConfigManager;
 import de.tomasgng.utils.enums.SeasonType;
 
@@ -11,10 +11,13 @@ import java.util.List;
 import static de.tomasgng.utils.config.pathproviders.ConfigPathProvider.*;
 
 public class ConfigDataProvider {
+    private final IPluginLogger logger;
     private final ConfigManager manager;
 
-    public ConfigDataProvider() {
-        manager = DynamicSeasons.getInstance().getConfigManager();
+    @Inject
+    public ConfigDataProvider(IPluginLogger logger, ConfigManager manager) {
+        this.logger = logger;
+        this.manager = manager;
     }
 
     public int getSeasonDuration() {
@@ -38,7 +41,7 @@ public class ConfigDataProvider {
         try {
             new SimpleDateFormat(format);
         } catch (IllegalArgumentException exception) {
-            PluginLogger.getInstance().error("Invalid date format! Path in config: " + PLACEHOLDERS_DURATION_FORMAT.getPath());
+            logger.error("Invalid date format! Path in config: " + PLACEHOLDERS_DURATION_FORMAT.getPath());
             format = PLACEHOLDERS_DURATION_FORMAT.getStringValue();
         }
 

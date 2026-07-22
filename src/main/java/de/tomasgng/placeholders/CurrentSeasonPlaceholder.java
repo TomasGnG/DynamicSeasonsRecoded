@@ -10,27 +10,29 @@ import org.jetbrains.annotations.Nullable;
 
 public class CurrentSeasonPlaceholder extends PlaceholderExpansion {
 
-    private ConfigDataProvider data;
-    private SeasonManager seasonManager;
+    private final ConfigDataProvider configDataProvider;
+    private final SeasonManager seasonManager;
+    private final DynamicSeasons plugin;
 
-    public CurrentSeasonPlaceholder() {
-        data = DynamicSeasons.getInstance().getConfigDataProvider();
-        seasonManager = DynamicSeasons.getInstance().getSeasonManager();
+    public CurrentSeasonPlaceholder(ConfigDataProvider configDataProvider, SeasonManager seasonManager, DynamicSeasons plugin) {
+        this.configDataProvider = configDataProvider;
+        this.seasonManager = seasonManager;
+        this.plugin = plugin;
     }
 
     @Override
     public @NotNull String getIdentifier() {
-        return data.getCurrentSeasonPlaceholderName();
+        return configDataProvider.getCurrentSeasonPlaceholderName();
     }
 
     @Override
     public @NotNull String getAuthor() {
-        return DynamicSeasons.getInstance().getDescription().getName();
+        return plugin.getDescription().getName();
     }
 
     @Override
     public @NotNull String getVersion() {
-        return DynamicSeasons.getInstance().getDescription().getVersion();
+        return plugin.getDescription().getVersion();
     }
 
     @Override
@@ -40,6 +42,6 @@ public class CurrentSeasonPlaceholder extends PlaceholderExpansion {
 
     @Override
     public @Nullable String onRequest(OfflinePlayer player, @NotNull String params) {
-        return data.getCurrentSeasonReplacementText(seasonManager.getCurrentSeason().getSeasonType());
+        return configDataProvider.getCurrentSeasonReplacementText(seasonManager.getCurrentSeason().getSeasonType());
     }
 }

@@ -14,27 +14,29 @@ import java.time.format.DateTimeFormatter;
 
 public class DurationPlaceholder extends PlaceholderExpansion {
 
-    private ConfigDataProvider data;
-    private SeasonManager seasonManager;
+    private final ConfigDataProvider configDataProvider;
+    private final SeasonManager seasonManager;
+    private final DynamicSeasons plugin;
 
-    public DurationPlaceholder() {
-        data = DynamicSeasons.getInstance().getConfigDataProvider();
-        seasonManager = DynamicSeasons.getInstance().getSeasonManager();
+    public DurationPlaceholder(ConfigDataProvider configDataProvider, SeasonManager seasonManager, DynamicSeasons plugin) {
+        this.configDataProvider = configDataProvider;
+        this.seasonManager = seasonManager;
+        this.plugin = plugin;
     }
 
     @Override
     public @NotNull String getIdentifier() {
-        return data.getDurationPlaceholderName();
+        return configDataProvider.getDurationPlaceholderName();
     }
 
     @Override
     public @NotNull String getAuthor() {
-        return DynamicSeasons.getInstance().getDescription().getName();
+        return plugin.getDescription().getName();
     }
 
     @Override
     public @NotNull String getVersion() {
-        return DynamicSeasons.getInstance().getDescription().getVersion();
+        return plugin.getDescription().getVersion();
     }
 
     @Override
@@ -45,7 +47,7 @@ public class DurationPlaceholder extends PlaceholderExpansion {
     @Override
     public @Nullable String onRequest(OfflinePlayer player, @NotNull String params) {
         LocalDateTime dateTime = LocalDateTime.ofEpochSecond(seasonManager.getRemainingTime(), 0, ZoneOffset.UTC);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(data.getDurationPlaceholderFormat());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(configDataProvider.getDurationPlaceholderFormat());
         return dateTime.format(formatter);
     }
 }

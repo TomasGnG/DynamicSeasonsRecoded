@@ -1,9 +1,12 @@
 package de.tomasgng.utils.season;
 
+import com.google.inject.Inject;
 import de.tomasgng.DynamicSeasons;
+import de.tomasgng.placeholders.IPlaceholderManager;
 import de.tomasgng.utils.config.SeasonConfigManager;
 import de.tomasgng.utils.config.dataproviders.ConfigDataProvider;
 import de.tomasgng.utils.config.dataproviders.MessageDataProvider;
+import de.tomasgng.utils.config.dataproviders.SeasonConfigDataProvider;
 import de.tomasgng.utils.config.dataproviders.SeasonDataProvider;
 import de.tomasgng.utils.enums.SeasonType;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -16,34 +19,46 @@ import java.util.List;
 
 public class SeasonManager {
 
+    private final DynamicSeasons plugin;
     private final BukkitAudiences adventure;
     private final SeasonDataProvider seasonDataProvider;
     private final ConfigDataProvider configDataProvider;
-    private final MessageDataProvider messageDataProvider;
     private final SeasonConfigManager seasonConfigManager;
+    private final IPlaceholderManager placeholderManager;
+    private final MessageDataProvider messageDataProvider;
 
     private final List<Season> seasons;
-    {
-        seasons = List.of(new Season(SeasonType.SPRING),
-                          new Season(SeasonType.SUMMER),
-                          new Season(SeasonType.FALL),
-                          new Season(SeasonType.WINTER));
-    }
 
     private Season currentSeason;
     private SeasonType lastSeasonType;
     private int remainingTime;
 
-    public SeasonManager() {
-        adventure = DynamicSeasons.getInstance().getAdventure();
-        seasonDataProvider = DynamicSeasons.getInstance().getSeasonDataProvider();
-        configDataProvider = DynamicSeasons.getInstance().getConfigDataProvider();
-        messageDataProvider = DynamicSeasons.getInstance().getMessageDataProvider();
-        seasonConfigManager = DynamicSeasons.getInstance().getSeasonConfigManager();
+    @Inject
+    public SeasonManager(DynamicSeasons plugin,
+                         BukkitAudiences adventure,
+                         SeasonDataProvider seasonDataProvider,
+                         ConfigDataProvider configDataProvider,
+                         SeasonConfigManager seasonConfigManager,
+                         SeasonConfigDataProvider seasonConfigDataProvider,
+                         IPlaceholderManager placeholderManager,
+                         MessageDataProvider messageDataProvider) {
+        this.plugin = plugin;
+        this.adventure = adventure;
+        this.seasonDataProvider = seasonDataProvider;
+        this.configDataProvider = configDataProvider;
+        this.seasonConfigManager = seasonConfigManager;
+        this.placeholderManager = placeholderManager;
+        this.messageDataProvider = messageDataProvider;
+
+        seasons = List.of(
+            new Season(SeasonType.SPRING, configDataProvider, seasonConfigDataProvider, seasonDataProvider, plugin),
+            new Season(SeasonType.SUMMER, configDataProvider, seasonConfigDataProvider, seasonDataProvider, plugin),
+            new Season(SeasonType.FALL, configDataProvider, seasonConfigDataProvider, seasonDataProvider, plugin),
+            new Season(SeasonType.WINTER, configDataProvider, seasonConfigDataProvider, seasonDataProvider, plugin)
+        );
 
         currentSeason = seasons.stream().filter(x -> x.getSeasonType() == seasonDataProvider.getCurrentSeason()).findFirst().get();
         remainingTime = seasonDataProvider.getRemainingDuration();
-
         seasonConfigManager.setConfigFile(currentSeason.getSeasonType());
 
         startSeasonTimer();
@@ -52,8 +67,7 @@ public class SeasonManager {
     }
 
     public void startSeasonTimer() {
-        Bukkit.getScheduler()
-              .runTaskTimer(DynamicSeasons.getInstance(),
+        Bukkit.getScheduler().runTaskTimer(plugin,
                                           this::decreaseRemainingTime,
                                           2 * 20L,
                                           20L);
@@ -89,7 +103,7 @@ public class SeasonManager {
 
     public void reload() {
         seasonConfigManager.createFiles();
-        DynamicSeasons.getInstance().getPlaceholderManager().reloadAll();
+        placeholderManager.reloadAll();
         currentSeason.init();
         initSeasonFeatures();
     }
@@ -114,7 +128,7 @@ public class SeasonManager {
         seasonDataProvider.setCurrentSeason(currentSeason.getSeasonType());
         seasonDataProvider.setRemainingDuration(configDataProvider.getSeasonDuration());
         remainingTime = seasonDataProvider.getRemainingDuration();
-        DynamicSeasons.getInstance().getSeasonConfigManager().setConfigFile(currentSeason.getSeasonType());
+        seasonConfigManager.setConfigFile(currentSeason.getSeasonType());
         currentSeason.init();
 
         announceSeasonChange();

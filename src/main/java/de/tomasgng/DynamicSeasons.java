@@ -1,19 +1,12 @@
 package de.tomasgng;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import de.tomasgng.commands.DynamicSeasonsCommand;
-import de.tomasgng.feedback.FeedbackHandler;
 import de.tomasgng.listeners.*;
-import de.tomasgng.placeholders.PlaceholderManager;
+import de.tomasgng.placeholders.IPlaceholderManager;
 import de.tomasgng.utils.Metrics;
 import de.tomasgng.utils.VersionChecker;
-import de.tomasgng.utils.config.ConfigManager;
-import de.tomasgng.utils.config.MessageManager;
-import de.tomasgng.utils.config.SeasonConfigManager;
-import de.tomasgng.utils.config.SeasonDataManager;
-import de.tomasgng.utils.config.dataproviders.ConfigDataProvider;
-import de.tomasgng.utils.config.dataproviders.MessageDataProvider;
-import de.tomasgng.utils.config.dataproviders.SeasonConfigDataProvider;
-import de.tomasgng.utils.config.dataproviders.SeasonDataProvider;
 import de.tomasgng.utils.season.SeasonManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
@@ -27,62 +20,34 @@ import java.util.Map;
 
 public final class DynamicSeasons extends JavaPlugin {
 
-    private static DynamicSeasons INSTANCE;
-
-    private BukkitAudiences adventure;
-
-    private ConfigManager configManager;
-    private SeasonConfigManager seasonConfigManager;
-    private MessageManager messageManager;
-    private SeasonDataManager seasonDataManager;
-
-    private ConfigDataProvider configDataProvider;
-    private MessageDataProvider messageDataProvider;
-    private SeasonDataProvider seasonDataProvider;
-    private SeasonConfigDataProvider seasonConfigDataProvider;
-
-    private SeasonManager seasonManager;
-    private PlaceholderManager placeholderManager;
-    private FeedbackHandler feedbackHandler;
+    private Injector injector;
 
     @Override
     public void onEnable() {
-        INSTANCE = this;
+        injector = Guice.createInjector(new DynamicSeasonsModule(this));
 
-        init();
+        injector.getInstance(VersionChecker.class).isLatestVersion(false);
 
-        VersionChecker.getInstance().isLatestVersion(false);
-        placeholderManager.registerAll();
+        if(Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
+            injector.getInstance(IPlaceholderManager.class).registerAll();
+
+        setupMetrics();
+        registerEvents();
+        registerCommand();
     }
 
     @Override
     public void onDisable() {
-        if(placeholderManager != null)
-            placeholderManager.unregisterAll();
+        if(injector == null)
+            return;
 
-        if(adventure != null) {
-            adventure.close();
-            adventure = null;
-        }
+        if(Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
+            injector.getInstance(IPlaceholderManager.class).unregisterAll();
+
+        injector.getInstance(BukkitAudiences.class).close();
     }
 
-    private void init() {
-        adventure = BukkitAudiences.create(this);
-
-        configManager = new ConfigManager();
-        seasonConfigManager = new SeasonConfigManager();
-        messageManager = new MessageManager();
-        seasonDataManager = new SeasonDataManager();
-
-        configDataProvider = new ConfigDataProvider();
-        messageDataProvider = new MessageDataProvider();
-        seasonDataProvider = new SeasonDataProvider();
-        seasonConfigDataProvider = new SeasonConfigDataProvider();
-
-        seasonManager = new SeasonManager();
-        placeholderManager = new PlaceholderManager();
-        feedbackHandler = new FeedbackHandler();
-
+    private void setupMetrics() {
         Metrics metrics = new Metrics(this, 19158);
         metrics.addCustomChart(new Metrics.MultiLineChart("players_and_servers", () -> {
             Map<String, Integer> valueMap = new HashMap<>();
@@ -90,24 +55,22 @@ public final class DynamicSeasons extends JavaPlugin {
             valueMap.put("players", Bukkit.getOnlinePlayers().size());
             return valueMap;
         }));
-
-        registerEvents();
-        registerCommand();
     }
 
     private void registerEvents() {
         PluginManager manager = getServer().getPluginManager();
+        SeasonManager seasonManager = injector.getInstance(SeasonManager.class);
 
-        manager.registerEvents(new WeatherChangeListener(), this);
-        manager.registerEvents(new ThunderChangeListener(), this);
-        manager.registerEvents(new CreatureSpawnListener(), this);
-        manager.registerEvents(new PlayerExpChangeListener(), this);
-        manager.registerEvents(new BlockGrowListener(), this);
-        manager.registerEvents(new BlockSpreadListener(), this);
-        manager.registerEvents(new StructureGrowListener(), this);
-        manager.registerEvents(new EntityDeathListener(), this);
-        manager.registerEvents(new EntityDamageListener(), this);
-        manager.registerEvents(new BlockBreakListener(), this);
+        manager.registerEvents(new WeatherChangeListener(seasonManager), this);
+        manager.registerEvents(new ThunderChangeListener(seasonManager), this);
+        manager.registerEvents(new CreatureSpawnListener(seasonManager), this);
+        manager.registerEvents(new PlayerExpChangeListener(seasonManager), this);
+        manager.registerEvents(new BlockGrowListener(seasonManager), this);
+        manager.registerEvents(new BlockSpreadListener(seasonManager), this);
+        manager.registerEvents(new StructureGrowListener(seasonManager), this);
+        manager.registerEvents(new EntityDeathListener(seasonManager), this);
+        manager.registerEvents(new EntityDamageListener(seasonManager), this);
+        manager.registerEvents(new BlockBreakListener(seasonManager), this);
     }
 
     private void registerCommand() {
@@ -117,66 +80,10 @@ public final class DynamicSeasons extends JavaPlugin {
 
             CommandMap comamndMap = (CommandMap) bukkitCmdMap.get(getServer());
 
-            comamndMap.register("dynamicseasons", new DynamicSeasonsCommand());
+            comamndMap.register("dynamicseasons", injector.getInstance(DynamicSeasonsCommand.class));
         } catch (NoSuchFieldException | IllegalAccessException e) {
             getLogger().severe("Couldn't register DynamicSeasons command!");
             getLogger().severe(e.getMessage());
         }
-    }
-
-    public static DynamicSeasons getInstance() {
-        return INSTANCE;
-    }
-
-    public ConfigManager getConfigManager() {
-        return configManager;
-    }
-
-    public SeasonConfigManager getSeasonConfigManager() {
-        return seasonConfigManager;
-    }
-
-    public ConfigDataProvider getConfigDataProvider() {
-        return configDataProvider;
-    }
-
-    public MessageManager getMessageManager() {
-        return messageManager;
-    }
-
-    public MessageDataProvider getMessageDataProvider() {
-        return messageDataProvider;
-    }
-
-    public SeasonDataManager getSeasonDataManager() {
-        return seasonDataManager;
-    }
-
-    public SeasonDataProvider getSeasonDataProvider() {
-        return seasonDataProvider;
-    }
-
-    public SeasonManager getSeasonManager() {
-        return seasonManager;
-    }
-
-    public SeasonConfigDataProvider getSeasonConfigDataProvider() {
-        return seasonConfigDataProvider;
-    }
-
-    public PlaceholderManager getPlaceholderManager() {
-        return placeholderManager;
-    }
-
-    public FeedbackHandler getFeedbackHandler() {
-        return feedbackHandler;
-    }
-
-    public BukkitAudiences getAdventure() {
-        if(adventure == null) {
-            throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
-        }
-
-        return adventure;
     }
 }

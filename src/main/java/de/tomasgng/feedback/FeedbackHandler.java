@@ -1,5 +1,6 @@
 package de.tomasgng.feedback;
 
+import com.google.inject.Inject;
 import de.tomasgng.DynamicSeasons;
 import org.bukkit.Bukkit;
 
@@ -11,7 +12,13 @@ import java.net.http.HttpResponse;
 
 public class FeedbackHandler {
 
+    private final DynamicSeasons plugin;
     private boolean prevented = false;
+
+    @Inject
+    public FeedbackHandler(DynamicSeasons plugin) {
+        this.plugin = plugin;
+    }
 
     public void sendFeedback(Feedback feedback, Runnable onSuccess, Runnable onFailure) {
         if(prevented)
@@ -19,7 +26,7 @@ public class FeedbackHandler {
 
         final String url = "http://213.165.94.207:8080/feedback/post";
 
-        Bukkit.getScheduler().runTaskAsynchronously(DynamicSeasons.getInstance(), task -> {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, task -> {
             try {
                 HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
@@ -34,11 +41,11 @@ public class FeedbackHandler {
                     preventFromSending();
                     onSuccess.run();
                 } else {
-                    DynamicSeasons.getInstance().getLogger().severe("Error while sending feedback: " + response.body());
+                    plugin.getLogger().severe("Error while sending feedback: " + response.body());
                     onFailure.run();
                 }
             } catch (IOException | InterruptedException e) {
-                DynamicSeasons.getInstance().getLogger().severe("Error while sending feedback: " + e.getMessage());
+                plugin.getLogger().severe("Error while sending feedback: " + e.getMessage());
                 onFailure.run();
             }
         });
@@ -51,7 +58,7 @@ public class FeedbackHandler {
     private void preventFromSending() {
         prevented = true;
 
-        Bukkit.getScheduler().runTaskLater(DynamicSeasons.getInstance(),
+        Bukkit.getScheduler().runTaskLater(plugin,
                                               task -> prevented = false,
                                               60 * 1000L);
     }

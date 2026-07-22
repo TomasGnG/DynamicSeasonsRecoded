@@ -37,6 +37,7 @@ public class Season {
     private final SeasonType seasonType;
     private final Random random = new Random();
 
+    private final DynamicSeasons plugin;
     private final ConfigDataProvider configDataProvider;
     private final SeasonConfigDataProvider seasonConfigDataProvider;
     private final SeasonDataProvider seasonDataProvider;
@@ -58,11 +59,16 @@ public class Season {
     private BukkitTask potionEffectsTimer;
     private BukkitTask particlesTimer;
 
-    public Season(SeasonType seasonType) {
+    public Season(SeasonType seasonType,
+                  ConfigDataProvider configDataProvider,
+                  SeasonConfigDataProvider seasonConfigDataProvider,
+                  SeasonDataProvider seasonDataProvider,
+                  DynamicSeasons plugin) {
         this.seasonType = seasonType;
-        configDataProvider = DynamicSeasons.getInstance().getConfigDataProvider();
-        seasonConfigDataProvider = DynamicSeasons.getInstance().getSeasonConfigDataProvider();
-        seasonDataProvider = DynamicSeasons.getInstance().getSeasonDataProvider();
+        this.configDataProvider = configDataProvider;
+        this.seasonConfigDataProvider = seasonConfigDataProvider;
+        this.seasonDataProvider = seasonDataProvider;
+        this.plugin = plugin;
     }
 
     public void init() {
@@ -70,13 +76,13 @@ public class Season {
         initFeatures();
 
         if(randomTickSpeedFeature.isEnabled())
-            worlds.forEach(x -> Bukkit.getScheduler().runTask(DynamicSeasons.getInstance(), () ->
+            worlds.forEach(x -> Bukkit.getScheduler().runTask(plugin, () ->
                     x.setGameRule(GameRule.RANDOM_TICK_SPEED, randomTickSpeedFeature.randomTickSpeed())
             ));
 
         handlePotionEffects();
         handleParticles();
-        commandExecutionFeature.initialize();
+        commandExecutionFeature.initialize(plugin);
     }
 
     private void initWorlds() {
@@ -258,7 +264,7 @@ public class Season {
         }
 
         Bukkit.getScheduler().runTaskLater(
-                DynamicSeasons.getInstance(),
+                plugin,
                 scheduledTask -> breedable.setAdult(),
                 entry.growTimeInSeconds() * 20L);
     }
@@ -296,7 +302,7 @@ public class Season {
         if(potionEffectsTimer != null)
             potionEffectsTimer.cancel();
 
-        potionEffectsTimer = Bukkit.getScheduler().runTaskTimer(DynamicSeasons.getInstance(),
+        potionEffectsTimer = Bukkit.getScheduler().runTaskTimer(plugin,
             new Runnable() {
                 @Override
                 public void run() {
@@ -314,7 +320,7 @@ public class Season {
     }
 
     private void givePlayerPotionEffects(Player player) {
-        Bukkit.getScheduler().runTask(DynamicSeasons.getInstance(), () -> {
+        Bukkit.getScheduler().runTask(plugin, () -> {
             for (PotionEffect effect : potionEffectsFeature.effects()) {
                 if(!player.hasPotionEffect(effect.getType()))
                     player.addPotionEffect(effect);
@@ -385,7 +391,7 @@ public class Season {
         if(particlesTimer != null)
             particlesTimer.cancel();
 
-        particlesTimer = Bukkit.getScheduler().runTaskTimerAsynchronously(DynamicSeasons.getInstance(), () -> {
+        particlesTimer = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             if(!particlesFeature.isEnabled())
                 return;
 

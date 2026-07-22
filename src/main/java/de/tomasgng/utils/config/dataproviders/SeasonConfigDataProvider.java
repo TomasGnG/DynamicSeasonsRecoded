@@ -1,8 +1,9 @@
 package de.tomasgng.utils.config.dataproviders;
 
+import com.google.inject.Inject;
 import de.tomasgng.DynamicSeasons;
+import de.tomasgng.interfaces.IPluginLogger;
 import de.tomasgng.utils.ItemBuilder;
-import de.tomasgng.utils.PluginLogger;
 import de.tomasgng.utils.config.SeasonConfigManager;
 import de.tomasgng.utils.config.utils.ConfigPair;
 import de.tomasgng.utils.features.*;
@@ -23,8 +24,16 @@ import static de.tomasgng.utils.config.pathproviders.SeasonConfigPathProvider.*;
 
 public class SeasonConfigDataProvider {
 
-    private SeasonConfigManager config = getConfigManager();
-    private final PluginLogger logger = PluginLogger.getInstance();
+    private final SeasonConfigManager config;
+    private final IPluginLogger logger;
+    private final DynamicSeasons plugin;
+
+    @Inject
+    public SeasonConfigDataProvider(SeasonConfigManager config, IPluginLogger logger, DynamicSeasons plugin) {
+        this.config = config;
+        this.logger = logger;
+        this.plugin = plugin;
+    }
 
     public WeatherFeature getWeatherFeature() {
         boolean isEnabled = config.getBooleanValue(WEATHER_ENABLED);
@@ -333,7 +342,7 @@ public class SeasonConfigDataProvider {
             } else
                 logger.warn(itemInHandMaterial + " is not a valid material. Path in config: " + bossNamePath + "." + BOSS_SPAWNING_ENTRIES_ITEMINHAND_MATERIAL_BASE.getPath());
 
-            BossSpawningEntry entry = new BossSpawningEntry(bossName, enabled, mobType, displayname, spawnChance, itemInHandEntry, parsedAttributes, lootDropsEnabled, lootDropsParsedEntries);
+            BossSpawningEntry entry = new BossSpawningEntry(bossName, enabled, mobType, displayname, spawnChance, itemInHandEntry, parsedAttributes, lootDropsEnabled, lootDropsParsedEntries, plugin);
             parsedEntries.add(entry);
         }
 
@@ -477,14 +486,5 @@ public class SeasonConfigDataProvider {
         }
 
         return lootDropsEntries;
-    }
-
-    private SeasonConfigManager getConfigManager() {
-        if (config == null) {
-            config = DynamicSeasons.getInstance().getSeasonConfigManager();
-            return config;
-        }
-
-        return config;
     }
 }

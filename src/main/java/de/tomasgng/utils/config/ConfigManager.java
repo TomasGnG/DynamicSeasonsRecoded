@@ -1,6 +1,6 @@
 package de.tomasgng.utils.config;
 
-import de.tomasgng.DynamicSeasons;
+import com.google.inject.Inject;
 import de.tomasgng.utils.config.pathproviders.ConfigPathProvider;
 import de.tomasgng.utils.config.utils.ConfigExclude;
 import de.tomasgng.utils.config.utils.ConfigPair;
@@ -15,16 +15,20 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ConfigManager {
     private final File folder = new File("plugins/DynamicSeasons");
     private final File configFile = new File("plugins/DynamicSeasons/config.yml");
+    private final Logger logger;
 
     private YamlConfiguration cfg = YamlConfiguration.loadConfiguration(configFile);
     private final MiniMessage mm = MiniMessage.miniMessage();
 
-    public ConfigManager() {
+    @Inject
+    public ConfigManager(Logger logger) {
+        this.logger = logger;
+
         createFiles();
     }
 
@@ -182,7 +186,7 @@ public class ConfigManager {
         try {
             return mm.deserialize(value);
         } catch (Exception e) {
-            DynamicSeasons.getInstance().getLogger().log(Level.WARNING, "The message {" + value + "} is not in MiniMessage format! Source (" + pair.getPath() + ")" + System.lineSeparator() + e.getMessage());
+            logger.warning("The message {" + value + "} is not in MiniMessage format! Source (" + pair.getPath() + ")" + System.lineSeparator() + e.getMessage());
             return mm.deserialize(pair.getStringValue());
         }
     }

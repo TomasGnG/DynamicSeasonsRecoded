@@ -1,6 +1,7 @@
 package de.tomasgng.utils.config;
 
-import de.tomasgng.utils.PluginLogger;
+import com.google.inject.Inject;
+import de.tomasgng.interfaces.IPluginLogger;
 import de.tomasgng.utils.config.pathproviders.SeasonConfigPathProvider;
 import de.tomasgng.utils.config.utils.ConfigExclude;
 import de.tomasgng.utils.config.utils.ConfigPair;
@@ -18,6 +19,7 @@ import java.util.*;
 
 public class SeasonConfigManager {
 
+    private final IPluginLogger pluginLogger;
     private File currentConfigFile;
 
     private final File folder = new File("plugins/DynamicSeasons/seasons/");
@@ -29,7 +31,9 @@ public class SeasonConfigManager {
     private YamlConfiguration cfg = YamlConfiguration.loadConfiguration(springConfigFile);
     private final MiniMessage mm = MiniMessage.miniMessage();
 
-    public SeasonConfigManager() {
+    @Inject
+    public SeasonConfigManager(IPluginLogger pluginLogger) {
+        this.pluginLogger = pluginLogger;
         createFiles();
     }
 
@@ -55,7 +59,7 @@ public class SeasonConfigManager {
                 setAllConfigPaths();
                 save();
             } catch (IOException e) {
-                PluginLogger.getInstance().error("Couldn't create file '" + file.getName() + "'!" + System.lineSeparator() + e.getLocalizedMessage());
+                pluginLogger.error("Couldn't create file '" + file.getName() + "'!" + System.lineSeparator() + e.getLocalizedMessage());
             }
         }
     }
@@ -215,7 +219,7 @@ public class SeasonConfigManager {
         try {
             return mm.deserialize(value);
         } catch (Exception e) {
-            PluginLogger.getInstance().warn("The message {" + value + "} is not in MiniMessage format! Source (" + pair.getPath() + ")" + System.lineSeparator() + e.getMessage());
+            pluginLogger.warn("The message {" + value + "} is not in MiniMessage format! Source (" + pair.getPath() + ")" + System.lineSeparator() + e.getMessage());
             return pair.getValue() != null ? mm.deserialize(pair.getStringValue()) : null;
         }
     }

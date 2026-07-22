@@ -7,6 +7,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -14,7 +15,7 @@ import java.util.List;
 
 public record BossSpawningFeature(boolean isEnabled, List<BossSpawningEntry> entries) {
     private static final List<BossSpawningEntry> livingBosses = new ArrayList<>();
-    public static final NamespacedKey MANUAL_SPAWN_KEY = new NamespacedKey(DynamicSeasons.getInstance(), "spawnAsBoss");
+    public static final NamespacedKey MANUAL_SPAWN_KEY = new NamespacedKey(JavaPlugin.getPlugin(DynamicSeasons.class), "spawnasboss");
 
     public void addLivingBoss(BossSpawningEntry entry) {
         livingBosses.add(entry);

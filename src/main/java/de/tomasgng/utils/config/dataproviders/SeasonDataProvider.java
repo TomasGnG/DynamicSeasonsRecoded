@@ -1,6 +1,6 @@
 package de.tomasgng.utils.config.dataproviders;
 
-import de.tomasgng.DynamicSeasons;
+import com.google.inject.Inject;
 import de.tomasgng.utils.config.SeasonDataManager;
 import de.tomasgng.utils.enums.SeasonType;
 
@@ -14,8 +14,9 @@ public class SeasonDataProvider {
 
     private final SeasonDataManager manager;
 
-    public SeasonDataProvider() {
-        manager = DynamicSeasons.getInstance().getSeasonDataManager();
+    @Inject
+    public SeasonDataProvider(SeasonDataManager manager) {
+        this.manager = manager;
     }
 
     public int getRemainingDuration() {
