@@ -32,11 +32,14 @@ jobs:
       - name: Build with ShadowJar
         run: ./gradlew shadowJar
 
+      - name: Rename JAR
+        run: mv build/libs/*-all.jar build/libs/DynamicSeasons.jar
+
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
           name: DynamicSeasons
-          path: build/libs/*.jar
+          path: build/libs/DynamicSeasons.jar
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -51,5 +54,5 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: "*.jar"
+          files: DynamicSeasons.jar
           generate_release_notes: true
